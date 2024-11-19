@@ -57,7 +57,6 @@ const SignInForm = () => {
           <Form onSubmit={handleSubmit}>
             <Label>E-MAIL</Label>
             <Input
-              //   label="Email"
               type="email"
               name="email"
               value={email}
@@ -67,7 +66,6 @@ const SignInForm = () => {
             />
             <Label>PASSWORD</Label>
             <Input
-              //   label="Password"
               type="password"
               name="password"
               onChange={handleChange}

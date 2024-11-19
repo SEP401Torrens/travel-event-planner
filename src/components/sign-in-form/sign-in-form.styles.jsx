@@ -1,7 +1,6 @@
 import styled from "styled-components";
-import photoSignIn from "../../assets/photo-sign-in.jpg"; // Adjust the path as needed
+import photoSignIn from "../../assets/photo-sign-in.jpg"; 
 
-// Container for the whole sign-in page
 export const SignInContainer = styled.div`
   display: flex;
   height: 100vh;
