@@ -12,6 +12,7 @@ import {
   Title,
 } from "./sign-in-form.styles";
 import { useNavigate } from "react-router-dom";
+import { notification } from "../../utils/notification.utils";
 
 const defaultFormFields = {
   email: "",
@@ -29,9 +30,10 @@ const SignInForm = () => {
     const isAuthenticated = await authenticateUser(email, password);
 
     if (isAuthenticated) {
+      notification("Successfully logged", "success");
       navigate("/main");
     } else {
-      alert("Invalid credentials, please try again.");
+      notification("Invalid credentials, please try again.", "error");
     }
   };
 

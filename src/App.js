@@ -9,7 +9,6 @@ function App() {
       <Route path="/" element={<SignInForm />} />
       <Route path="/main" element={<MainPage />} />
     </Routes>
-
   );
 }
 
