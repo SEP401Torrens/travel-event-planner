@@ -13,6 +13,8 @@ import {
 } from "./sign-in-form.styles";
 import { useNavigate } from "react-router-dom";
 import { notification } from "../../utils/notification.utils";
+import { useDispatch } from "react-redux";
+import { signIn } from "../../store/auth/auth.reducer";
 
 const defaultFormFields = {
   email: "",
@@ -22,6 +24,7 @@ const defaultFormFields = {
 const SignInForm = () => {
   const [formFields, setFormFields] = useState(defaultFormFields);
   const { email, password } = formFields;
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const resetFormFields = () => {
@@ -30,10 +33,12 @@ const SignInForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("entro");
-    const isAuthenticated = await authenticateUser(email, password);
 
-    if (isAuthenticated) {
+    const response = await authenticateUser(email, password);
+
+    console.log("response", response);
+    if (response.validation) {
+      dispatch(signIn(response.token));
       notification("Successfully logged", "success");
       navigate("/main");
     } else {
@@ -44,7 +49,10 @@ const SignInForm = () => {
 
   //todo: to replace
   const authenticateUser = async (email, password) => {
-    return email === "example@gmail.com" && password === "password123";
+    return {
+      validation: email === "example@gmail.com" && password === "password123",
+      token: "1234567890",
+    };
   };
 
   const handleChange = (event) => {

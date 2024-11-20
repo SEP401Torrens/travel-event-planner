@@ -15,6 +15,8 @@ import {
 } from "./sign-up-form.styles";
 import { notification } from "../../utils/notification.utils";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { signIn } from "../../store/auth/auth.reducer";
 
 const defaultFormFields = {
   email: "",
@@ -29,6 +31,7 @@ const SignUpForm = () => {
   const { email, firstName, lastName, password, reEnterPassword } = formFields;
   const [error, setError] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,9 +47,10 @@ const SignUpForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const isAuthenticated = await createUser(formFields);
+    const response = await createUser(formFields);
 
-    if (isAuthenticated) {
+    if (response.validation) {
+      dispatch(signIn(response.token));
       notification("Successfully created", "success");
       navigate("/main");
     } else {
@@ -57,11 +61,13 @@ const SignUpForm = () => {
   //todo: to replace
   const createUser = async (formFields) => {
     console.log(formFields);
-    return (
-      formFields.email === "example@gmail.com" &&
-      formFields.password === "password123" &&
-      formFields.reEnterPassword === "password123"
-    );
+    return {
+      validation:
+        formFields.email === "example@gmail.com" &&
+        formFields.password === "password123" &&
+        formFields.reEnterPassword === "password123",
+      token: "1234567890",
+    };
   };
 
   const handleChange = (event) => {
