@@ -12,8 +12,8 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <App />
-      <ToastContainer />
     </BrowserRouter>
+    <ToastContainer />
   </React.StrictMode>
 );
 

@@ -24,15 +24,20 @@ const SignInForm = () => {
   const { email, password } = formFields;
   const navigate = useNavigate();
 
+  const resetFormFields = () => {
+    setFormFields(defaultFormFields);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    console.log("entro");
     const isAuthenticated = await authenticateUser(email, password);
 
     if (isAuthenticated) {
       notification("Successfully logged", "success");
       navigate("/main");
     } else {
+      resetFormFields();
       notification("Invalid credentials, please try again.", "error");
     }
   };
