@@ -1,3 +1,11 @@
+/* Edge-specific fix */
+@supports (-ms-ime-align: auto) {
+  .sidebar-menu-item:focus,
+  .sidebar-menu-item:active {
+    outline: none;
+  }
+}
+
 /* .App {
   text-align: center;
 }
