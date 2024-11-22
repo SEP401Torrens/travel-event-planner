@@ -27,22 +27,43 @@ export const mockClients = [
   },
 ];
 
-// Async thunk to fetch clients from the backend
+
 export const fetchClients = createAsyncThunk(
   "clients/fetchClients",
   async () => {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(mockClients);
-      }, 1000); // Simulate a network delay
+      }, 1000); 
     });
 
     //   const response = await fetch("/api/clients");
-    //     const response = clients
     //     const data = await response.json();
     //     return data;
   }
 );
+
+// Async thunk to add a new client
+export const addClient = createAsyncThunk('clients/addClient', async (newClient) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ ...newClient, id: Date.now() }); 
+    }, 500); 
+  });
+});
+
+
+// export const addClient = createAsyncThunk('clients/addClient', async (newClient) => {
+//   const response = await fetch('/api/clients', {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     body: JSON.stringify(newClient),
+//   });
+//   const data = await response.json();
+//   return data;
+// });
 
 const clientSlice = createSlice({
   name: "clients",
@@ -64,6 +85,9 @@ const clientSlice = createSlice({
       .addCase(fetchClients.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+      })
+      .addCase(addClient.fulfilled, (state, action) => {
+        state.clients.push(action.payload);
       });
   },
 });

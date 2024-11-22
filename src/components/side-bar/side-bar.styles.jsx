@@ -2,12 +2,14 @@ import styled from "styled-components";
 
 export const SidebarContainer = styled.div`
   width: 250px;
-  background-color: #1E0E62;
+  background-color: #1e0e62;
   color: white;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 20px 15px;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
 `;
 
 export const SidebarHeader = styled.h2`

@@ -1,14 +1,26 @@
+import { useState } from "react";
 import {
   AddClientButton,
   SearchBarContainer,
   SearchInput,
 } from "./search-bar.styles";
+import AddClientModal from "../add-client-form/add-client-form.component";
 
 const SearchBar = ({ onSearchChange }) => {
+  const [isAddClientModalOpen, setIsAddClientModalOpen] = useState(false);
+
+  const openAddClientModal = () => {
+    setIsAddClientModalOpen(true);
+  };
+
+  const closeAddClientModal = () => {
+    setIsAddClientModalOpen(false);
+  };
+
   const handleInputChange = (e) => {
     onSearchChange(e.target.value);
   };
-
+  
   return (
     <SearchBarContainer>
       <SearchInput
@@ -16,7 +28,9 @@ const SearchBar = ({ onSearchChange }) => {
         placeholder="search by name or phone number"
         onChange={handleInputChange}
       />
-      <AddClientButton>ADD CLIENT</AddClientButton>
+      <AddClientButton onClick={openAddClientModal}>ADD CLIENT</AddClientButton>
+      {console.log(isAddClientModalOpen)}
+      {isAddClientModalOpen && <AddClientModal onClose={closeAddClientModal} />}
     </SearchBarContainer>
   );
 };
