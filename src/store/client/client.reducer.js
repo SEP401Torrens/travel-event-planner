@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { format } from "date-fns";
 
 export const mockClients = [
   {
@@ -72,7 +73,16 @@ const clientSlice = createSlice({
     status: "idle",
     error: null,
   },
-  reducers: {},
+  reducers: {
+    updateClientTrip: (state, action) => {
+      const { clientId, nextTripDate, location } = action.payload;
+      const client = state.clients.find((client) => client.id === clientId);
+      if (client) {
+        client.nextTripDate = format(new Date(nextTripDate), 'dd/MM/yyyy');
+        client.location = location;
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchClients.pending, (state) => {
@@ -91,5 +101,7 @@ const clientSlice = createSlice({
       });
   },
 });
+
+export const { updateClientTrip} = clientSlice.actions;
 
 export const clientReducer = clientSlice.reducer;

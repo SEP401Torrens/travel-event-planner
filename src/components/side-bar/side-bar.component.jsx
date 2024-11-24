@@ -13,13 +13,20 @@ import { ReactComponent as LogoutIcon } from "../../assets/icons/logout.svg";
 import { useDispatch } from "react-redux";
 import { logout } from "../../store/auth/auth.reducer";
 import { notification } from "../../utils/notification.utils";
+import { useNavigate } from "react-router-dom";
 
 const SideBar = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     dispatch(logout());
     notification("Successfully logout", "success");
+  };
+
+  const handleGoToClients = () => {
+    console.log("clicks");
+    navigate("/main");
   };
 
   return (
@@ -28,7 +35,7 @@ const SideBar = () => {
         <SidebarHeader>Travel Event Planner</SidebarHeader>
         <SidebarLine />
         <SidebarMenu>
-          <SidebarMenuItem>
+          <SidebarMenuItem onClick={handleGoToClients}>
             <ClientsIcon />
             Clients
           </SidebarMenuItem>

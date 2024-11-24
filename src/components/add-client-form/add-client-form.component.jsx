@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Divider,
   FormRow,
@@ -16,6 +16,7 @@ import {
 } from "./add-client-form.styles";
 import { ReactComponent as CloseButton } from "../../assets/icons/close.svg";
 import { addClient } from "../../store/client/client.reducer";
+import { selectCategories } from "../../store/categories/categories.selector";
 
 const defaultFormFields = {
   firstName: "",
@@ -29,6 +30,7 @@ const defaultFormFields = {
 const AddClientModal = ({ onClose }) => {
   const [formFields, setFormFields] = useState(defaultFormFields);
   const dispatch = useDispatch();
+  const categories = useSelector(selectCategories);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -108,13 +110,14 @@ const AddClientModal = ({ onClose }) => {
                 onChange={handleChange}
                 required
               >
-                <option value="">Select Event Type</option>
-                <option value="Sports">Sports</option>
-                <option value="Miscellaneous">Miscellaneous</option>
-                <option value="Music">Music</option>
-                <option value="Arts">Arts</option>
-                <option value="Arts & Theatre">Arts & Theatre</option>
-                <option value="Film">Film</option>
+                <option value="" disabled>
+                  Select ...
+                </option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
               </Select>
             </InputWrapper>
             <InputWrapper>

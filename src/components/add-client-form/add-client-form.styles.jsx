@@ -42,15 +42,6 @@ export const ModalTitle = styled.h2`
   color: #ffffff;
 `;
 
-export const CloseButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 20px;
-  font-weight: bold;
-  color: #ffffff;
-  cursor: pointer;
-`;
-
 export const Divider = styled.hr`
   border: 0;
   height: 1px;

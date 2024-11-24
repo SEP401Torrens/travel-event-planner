@@ -29,7 +29,6 @@ const SearchBar = ({ onSearchChange }) => {
         onChange={handleInputChange}
       />
       <AddClientButton onClick={openAddClientModal}>ADD CLIENT</AddClientButton>
-      {console.log(isAddClientModalOpen)}
       {isAddClientModalOpen && <AddClientModal onClose={closeAddClientModal} />}
     </SearchBarContainer>
   );
