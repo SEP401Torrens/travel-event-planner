@@ -16,10 +16,13 @@ import { ReactComponent as DeleteIcon } from "../../assets/icons/close.svg";
 import AddTripForm from "../add-trip-form/add-trip-form.component";
 import { useState } from "react";
 import ConfirmationModal from "../confirmation-modal/confirmation-modal.component";
+import { useDispatch } from "react-redux";
+import { deleteClient } from "../../store/client/client.reducer";
 
 const ClientCard = ({ client }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+  const dispatch = useDispatch();
 
   const handleAddTripClick = () => {
     setIsModalOpen(true);
@@ -34,7 +37,8 @@ const ClientCard = ({ client }) => {
   };
 
   const handleConfirmDelete = () => {
-    console.log("delete client");
+    console.log("delete client", client);
+    dispatch(deleteClient(client.id));
     setIsConfirmationModalOpen(false);
   };
 

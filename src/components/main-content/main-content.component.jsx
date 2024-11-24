@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Content, ClientListWrapper } from "./main-content.styles.jsx";
-import { fetchClients } from "../../store/client/client.reducer";
+import { fetchClients, setCurrentPage } from "../../store/client/client.reducer";
 import ClientList from "../client-list/client-list.component.jsx";
 import SearchBar from "../search-bar/search-bar.component.jsx";
 import {
@@ -15,14 +15,12 @@ import Pagination from "../pagination/pagination.component.jsx";
 
 const MainContent = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
   const dispatch = useDispatch();
-  // const [pageSize, setPageSize] = useState(10);
   const clients = useSelector(allClientsData);
   const clientStatus = useSelector(clientsDataStatus);
   const error = useSelector(clientsDataError);
   const totalPages = useSelector(selectTotalPages);
-  const actualCurrentPage = useSelector(selectCurrentPage);
+  const currentPage = useSelector(selectCurrentPage);
 
   useEffect(() => {
     dispatch(
@@ -34,16 +32,10 @@ const MainContent = () => {
     );
   }, [currentPage, searchQuery, dispatch]);
 
-  useEffect(() => {
-    console.log("currentPage", currentPage);
-    console.log("actualCurrentPage", actualCurrentPage);
-    // if (currentPage !== actualCurrentPage) {
-    //   setCurrentPage(actualCurrentPage);
-    // }
-  }, [currentPage, actualCurrentPage]);
 
   const handleSearchChange = (query) => {
     setSearchQuery(query);
+    dispatch(setCurrentPage(1));
   };
 
   // const filteredClients = clients.filter((client) =>
@@ -53,8 +45,7 @@ const MainContent = () => {
   // );
 
   const handlePageChange = (newPage) => {
-    console.log("newPage", newPage);
-    setCurrentPage(newPage);
+     dispatch(setCurrentPage(newPage));
   };
 
   let content;

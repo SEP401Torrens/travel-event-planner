@@ -117,17 +117,25 @@ export const addClient = createAsyncThunk(
       setTimeout(() => {
         const newClientWithId = {
           ...newClient,
-          id: mockClients.length + 1, // Simulate generating a new ID
+          id: mockClients.length + 1,
           nextTripDate: newClient.nextTripDate || "2024-11-22T15:50:36.670Z", // Default date if not provided
         };
         mockClients.push(newClientWithId); // Add the new client to the mock data
 
         const state = thunkAPI.getState();
-        const { clients, pageSize } = state.clients;
+        const { clients, pageSize, currentPage } = state.clients;
         const totalClients = clients.length + 1;
         const totalPages = Math.ceil(totalClients / pageSize);
 
-        resolve({ ...newClientWithId, totalPages });
+        const newCurrentPage =
+          clients.length % pageSize === 0 ? currentPage + 1 : currentPage;
+
+        console.log("newCurrentPage", newCurrentPage);
+        resolve({
+          ...newClientWithId,
+          totalPages,
+          currentPage: newCurrentPage,
+        });
       }, 500);
     });
   }
@@ -211,6 +219,9 @@ const clientSlice = createSlice({
         client.location = location;
       }
     },
+    setCurrentPage: (state, action) => {
+      state.currentPage = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -230,6 +241,7 @@ const clientSlice = createSlice({
         state.total = action.payload.data.totalItems;
         state.totalPages = action.payload.data.totalPages;
         state.pageSize = action.payload.data.size;
+        state.currentPage = action.payload.data.currentPage;
       })
       .addCase(fetchClients.rejected, (state, action) => {
         state.status = "failed";
@@ -247,18 +259,33 @@ const clientSlice = createSlice({
         });
         state.total += 1;
         state.totalPages = action.payload.totalPages;
-        state.currentPage = action.payload.totalPages;
+        state.currentPage = action.payload.currentPage;
       })
       .addCase(deleteClient.fulfilled, (state, action) => {
-        state.clients = state.clients.filter(
-          (client) => client.id !== action.payload
+        const clientId = action.payload;
+        const clientIndex = state.clients.findIndex(
+          (client) => client.id === clientId
         );
-        state.total -= 1;
-        state.totalPages = Math.ceil(state.total / state.pageSize);
+        if (clientIndex !== -1) {
+          console.log("state.total", state.total)
+          console.log("state.pageSize", state.pageSize)
+          state.clients.splice(clientIndex, 1);
+          state.total -= 1;
+          state.totalPages = Math.ceil(state.total / state.pageSize);
+
+          // if the current page is now empty move to the previous page
+          if (state.clients.length === 0 && state.currentPage > 1) {
+            state.currentPage -= 1;
+          }
+
+          const startIndex = (state.currentPage - 1) * state.pageSize;
+          const endIndex = startIndex + state.pageSize;
+          state.clients = mockClients.slice(startIndex, endIndex);
+        }
       });
   },
 });
 
-export const { updateClientTrip } = clientSlice.actions;
+export const { updateClientTrip, setCurrentPage } = clientSlice.actions;
 
 export const clientReducer = clientSlice.reducer;
