@@ -16,14 +16,14 @@ export const ClientCardContainer = styled.div`
 `;
 
 export const ClientCardHeader = styled.div`
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
-  width: 100%; 
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
   font-size: 18px;
   font-weight: bold;
   color: white;
-  word-wrap: break-word; 
+  word-wrap: break-word;
   white-space: normal;
   overflow-wrap: break-word;
 
@@ -102,5 +102,9 @@ export const DeleteButton = styled.button`
     height: 24px;
     color: white;
     cursor: pointer;
+
+    &:hover {
+      color: #20c997;
+    }
   }
 `;

@@ -15,9 +15,11 @@ import { ReactComponent as DeleteIcon } from "../../assets/icons/close.svg";
 
 import AddTripForm from "../add-trip-form/add-trip-form.component";
 import { useState } from "react";
+import ConfirmationModal from "../confirmation-modal/confirmation-modal.component";
 
 const ClientCard = ({ client }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
 
   const handleAddTripClick = () => {
     setIsModalOpen(true);
@@ -28,14 +30,23 @@ const ClientCard = ({ client }) => {
   };
 
   const handleDeleteClick = () => {
+    setIsConfirmationModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
     console.log("delete client");
+    setIsConfirmationModalOpen(false);
+  };
+
+  const handleCancelDelete = () => {
+    setIsConfirmationModalOpen(false);
   };
 
   return (
     <ClientCardContainer>
       <ClientCardHeader>
         <span>
-        {client.firstName} {client.lastName}
+          {client.firstName} {client.lastName}
         </span>
         <DeleteButton onClick={handleDeleteClick}>
           <DeleteIcon />
@@ -65,6 +76,13 @@ const ClientCard = ({ client }) => {
         )}
         {isModalOpen && (
           <AddTripForm client={client} onClose={handleCloseModal} />
+        )}
+        {isConfirmationModalOpen && (
+          <ConfirmationModal
+            message={`Are you sure you want to delete ${client.firstName} ${client.lastName} ?`}
+            onConfirm={handleConfirmDelete}
+            onCancel={handleCancelDelete}
+          />
         )}
       </ClientCardDetails>
     </ClientCardContainer>

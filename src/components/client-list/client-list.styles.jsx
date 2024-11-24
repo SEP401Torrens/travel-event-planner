@@ -1,8 +1,8 @@
 import styled from "styled-components";
 
 export const ClientListContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5%;
-  justify-content: flex-start;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); // Responsive columns
+  gap: 20px; 
+  padding-bottom: 20px; 
 `;
