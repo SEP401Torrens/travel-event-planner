@@ -103,16 +103,52 @@ export const Select = styled.select`
 
 export const SaveButton = styled.button`
   padding: 10px 20px;
-  background-color: #20c997;
+  background-color: ${({ disabled }) => (disabled ? "#ccc" : "#20c997")};
   color: #ffffff;
   border: none;
   border-radius: 4px;
   font-size: 16px;
   font-weight: bold;
-  cursor: pointer;
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
   align-self: flex-end;
 
   &:hover {
-    background-color: #17a589;
+    background-color: ${({ disabled }) => (disabled ? "#ccc" : "#17a589")};
   }
 `;
+
+
+export const customSelectStyles = {
+  control: (provided) => ({
+    ...provided,
+    width: "100%",
+    padding: "2px",
+    border: "1px solid white",
+    borderColor: "red",
+    borderRadius: "5px",
+    fontSize: "14px",
+    color: "black",
+    boxShadow: "none",
+
+    "&:hover": {
+      borderColor: "white",
+    },
+    "&:focus": {
+      borderColor: "#20c997",
+      boxShadow: "0 0 0 1px #00c896",
+    },
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    opacity: 0.8,
+  }),
+
+  option: (provided, state) => ({
+    ...provided,
+    color: "black",
+    backgroundColor: state.isSelected ? "#20c997" : "transparent",
+    "&:hover": {
+      backgroundColor: "#d5f5df",
+    },
+  }),
+};

@@ -7,9 +7,12 @@ import {
   DetailText,
   Divider,
   AddTripButton,
+  DeleteButton,
 } from "./client-card.styles";
 import { ReactComponent as CalendarIcon } from "../../assets/icons/calendar.svg";
 import { ReactComponent as LocationIcon } from "../../assets/icons/location.svg";
+import { ReactComponent as DeleteIcon } from "../../assets/icons/close.svg";
+
 import AddTripForm from "../add-trip-form/add-trip-form.component";
 import { useState } from "react";
 
@@ -24,12 +27,19 @@ const ClientCard = ({ client }) => {
     setIsModalOpen(false);
   };
 
-  console.log("ClientCard client", client);
-  
+  const handleDeleteClick = () => {
+    console.log("delete client");
+  };
+
   return (
     <ClientCardContainer>
       <ClientCardHeader>
+        <span>
         {client.firstName} {client.lastName}
+        </span>
+        <DeleteButton onClick={handleDeleteClick}>
+          <DeleteIcon />
+        </DeleteButton>
       </ClientCardHeader>
       <Divider />
       <ClientCardDetails>

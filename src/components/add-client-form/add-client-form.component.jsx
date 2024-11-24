@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  customSelectStyles,
   Divider,
   FormRow,
   Input,
@@ -12,11 +13,12 @@ import {
   ModalOverlay,
   ModalTitle,
   SaveButton,
-  Select,
+  // Select,
 } from "./add-client-form.styles";
 import { ReactComponent as CloseButton } from "../../assets/icons/close.svg";
 import { addClient } from "../../store/client/client.reducer";
 import { selectCategories } from "../../store/categories/categories.selector";
+import Select from "react-select";
 
 const defaultFormFields = {
   firstName: "",
@@ -31,18 +33,45 @@ const AddClientModal = ({ onClose }) => {
   const [formFields, setFormFields] = useState(defaultFormFields);
   const dispatch = useDispatch();
   const categories = useSelector(selectCategories);
+  const [isSaveDisabled, setIsSaveDisabled] = useState(true);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormFields({ ...formFields, [name]: value });
+  useEffect(() => {
+    const newErrors = {};
+
+    if (
+      !formFields.firstName ||
+      !formFields.lastName ||
+      !formFields.email ||
+      !formFields.totalBudget ||
+      !formFields.phone ||
+      !formFields.favoriteEventTypes
+    ) {
+      newErrors.favoriteEventTypes = "Inputs is required";
+    }
+    setIsSaveDisabled(Object.keys(newErrors).length > 0);
+  }, [formFields]);
+
+  const handleChange = (event, actionMeta) => {
+    if (actionMeta) {
+      const { name } = actionMeta;
+      setFormFields({ ...formFields, [name]: event });
+    } else {
+      const { name, value } = event.target;
+      setFormFields({ ...formFields, [name]: value });
+    }
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-     dispatch(addClient(formFields)).then(() => {
-      onClose(); 
+    dispatch(addClient(formFields)).then(() => {
+      onClose();
     });
   };
+
+  const categoryOptions = categories.map((category) => ({
+    value: category.id,
+    label: category.name,
+  }));
 
   return (
     <ModalOverlay>
@@ -104,7 +133,8 @@ const AddClientModal = ({ onClose }) => {
           <FormRow>
             <InputWrapper>
               <Label>FAVORITE EVENT TYPES</Label>
-              <Select
+              {/* 
+                <Select
                 name="favoriteEventTypes"
                 value={formFields.favoriteEventTypes}
                 onChange={handleChange}
@@ -119,6 +149,16 @@ const AddClientModal = ({ onClose }) => {
                   </option>
                 ))}
               </Select>
+                
+                
+                */}
+              <Select
+                name="favoriteEventTypes"
+                value={formFields.favoriteEventTypes}
+                onChange={handleChange}
+                options={categoryOptions}
+                styles={customSelectStyles}
+              />
             </InputWrapper>
             <InputWrapper>
               <Label>TOTAL BUDGET</Label>
@@ -132,7 +172,9 @@ const AddClientModal = ({ onClose }) => {
               />
             </InputWrapper>
           </FormRow>
-          <SaveButton type="submit">SAVE</SaveButton>
+          <SaveButton type="submit" disabled={isSaveDisabled}>
+            SAVE
+          </SaveButton>
         </ModalForm>
       </ModalContent>
     </ModalOverlay>

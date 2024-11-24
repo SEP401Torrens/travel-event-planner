@@ -15,11 +15,23 @@ export const ClientCardContainer = styled.div`
   margin: 10px 0px 10px 0px;
 `;
 
-export const ClientCardHeader = styled.h3`
+export const ClientCardHeader = styled.div`
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  width: 100%; 
   font-size: 18px;
   font-weight: bold;
-  margin: 0;
-  text-align: center;
+  color: white;
+  word-wrap: break-word; 
+  white-space: normal;
+  overflow-wrap: break-word;
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 `;
 
 export const Divider = styled.hr`
@@ -76,5 +88,19 @@ export const AddTripButton = styled.button`
 
   &:hover {
     background-color: #17a589;
+  }
+`;
+export const DeleteButton = styled.button`
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+
+  svg {
+    width: 24px;
+    height: 24px;
+    color: white;
+    cursor: pointer;
   }
 `;
