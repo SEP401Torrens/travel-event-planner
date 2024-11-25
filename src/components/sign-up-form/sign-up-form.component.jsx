@@ -16,7 +16,7 @@ import {
 import { notification } from "../../utils/notification.utils";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { signIn } from "../../store/auth/auth.reducer";
+import { signUp } from "../../store/auth/auth.reducer";
 
 const defaultFormFields = {
   email: "",
@@ -46,33 +46,28 @@ const SignUpForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const response = await createUser(formFields);
-
-    if (response.validation) {
-      dispatch(signIn(response.token));
-      notification("Successfully created", "success");
-      navigate("/main");
-    } else {
-      notification("We couldn't create your user, please try later.", "error");
-    }
-  };
-
-  //todo: to replace
-  const createUser = async (formFields) => {
-    console.log(formFields);
-    return {
-      validation:
-        formFields.email === "example@gmail.com" &&
-        formFields.password === "password123" &&
-        formFields.reEnterPassword === "password123",
-      token: "1234567890",
-    };
+    dispatch(
+      signUp({
+        email: formFields.email,
+        lastName: formFields.lastName,
+        name: formFields.firstName,
+        password: formFields.password,
+      })
+    ).then((action) => {
+      if (action.type === signUp.fulfilled.type) {
+        notification("Successfully created", "success");
+        navigate("/");
+      } else {
+        notification(
+          "We couldn't create your user, please try later.",
+          "error"
+        );
+      }
+    });
   };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-
     setFormFields({ ...formFields, [name]: value });
   };
 

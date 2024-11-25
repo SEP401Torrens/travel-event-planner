@@ -18,7 +18,6 @@ const App = () => {
         path="/main"
         element={isAuth ? <MainPage /> : <Navigate to="/" />}
       />
-
       <Route
         path="/sign-up"
         element={isAuth ? <Navigate to="/main" /> : <SignUpForm />}

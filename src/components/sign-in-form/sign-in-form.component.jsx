@@ -14,7 +14,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { notification } from "../../utils/notification.utils";
 import { useDispatch } from "react-redux";
-import { signIn } from "../../store/auth/auth.reducer";
+import { login } from "../../store/auth/auth.reducer";
 
 const defaultFormFields = {
   email: "",
@@ -31,28 +31,18 @@ const SignInForm = () => {
     setFormFields(defaultFormFields);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit =  (e) => {
     e.preventDefault();
 
-    const response = await authenticateUser(email, password);
-
-    console.log("response", response);
-    if (response.validation) {
-      dispatch(signIn(response.token));
-      notification("Successfully logged", "success");
-      navigate("/main");
-    } else {
-      resetFormFields();
-      notification("Invalid credentials, please try again.", "error");
-    }
-  };
-
-  //todo: to replace
-  const authenticateUser = async (email, password) => {
-    return {
-      validation: email === "example@gmail.com" && password === "password123",
-      token: "1234567890",
-    };
+    dispatch(login({ email, password })).then((action) => {
+      if (action.type === login.fulfilled.type) {
+        notification("Successfully logged in", "success");
+        navigate('/main');
+      } else {
+        resetFormFields();
+        notification("Invalid credentials, please try again.", "error");
+      }
+    });
   };
 
   const handleChange = (event) => {

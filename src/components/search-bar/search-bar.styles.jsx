@@ -18,6 +18,11 @@ export const SearchInput = styled.input`
   &::placeholder {
     color: #999;
   }
+
+  &:focus {
+    outline: none; /* Removes the black outline */
+    box-shadow: 0 0 0 2px #20c997; /* Optional: Add a custom highlight */
+  }
 `;
 
 export const AddClientButton = styled.button`
