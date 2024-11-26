@@ -1,159 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { format } from "date-fns";
 
-// export const mockClients = [
-//   {
-//     id: 1,
-//     firstName: "Nicole",
-//     lastName: "Fisher",
-//     phone: "8090001111",
-//     nextTripDate: "2024-11-22T15:50:36.670Z",
-//     location: "Dominican Rep.",
-//   },
-//   {
-//     id: 2,
-//     firstName: "James",
-//     lastName: "Carter",
-//     phone: "8090001111",
-//     nextTripDate: "2024-11-22T15:50:36.670Z",
-//     location: "United States",
-//   },
-//   {
-//     id: 3,
-//     firstName: "Emily",
-//     lastName: "Johnson",
-//     phone: "8090001111",
-//     nextTripDate: "2024-11-22T15:50:36.670Z",
-//     location: "Canada",
-//   },
-//   {
-//     id: 4,
-//     firstName: "Emily",
-//     lastName: "Johnson",
-//     phone: "8090001111",
-//     nextTripDate: "2024-11-22T15:50:36.670Z",
-//     location: "Canada",
-//   },
-//   {
-//     id: 5,
-//     firstName: "Emily",
-//     lastName: "Johnson",
-//     phone: "8090001111",
-//     nextTripDate: "2024-11-22T15:50:36.670Z",
-//     location: "Canada",
-//   },
-//   {
-//     id: 6,
-//     firstName: "Emily",
-//     lastName: "Johnson",
-//     phone: "8090001111",
-//     nextTripDate: "2024-11-22T15:50:36.670Z",
-//     location: "Canada",
-//   },
-//   {
-//     id: 7,
-//     firstName: "Emily",
-//     lastName: "Johnson",
-//     phone: "8090001111",
-//     nextTripDate: "2024-11-22T15:50:36.670Z",
-//     location: "Canada",
-//   },
-// ];
-
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-
-// simulate to fetch clients
-// export const fetchClients = createAsyncThunk(
-//   "clients/fetchClients",
-//   async ({ currentPage, pageSize, searchTerm }) => {
-//     return new Promise((resolve) => {
-//       setTimeout(() => {
-//         let filteredClients = mockClients;
-//         if (searchTerm) {
-//           filteredClients = filteredClients.filter((client) =>
-//             `${client.firstName} ${client.lastName}`
-//               .toLowerCase()
-//               .includes(searchTerm.toLowerCase())
-//           );
-//         }
-//         const startIndex = (currentPage - 1) * pageSize;
-//         const paginatedClients = filteredClients.slice(
-//           startIndex,
-//           startIndex + pageSize
-//         );
-//         resolve({
-//           message: "Success",
-//           status: 0,
-//           data: {
-//             totalPages: Math.ceil(filteredClients.length / pageSize),
-//             totalItems: filteredClients.length,
-//             currentPage,
-//             size: pageSize,
-//             list: paginatedClients.map((client) => ({
-//               id: client.id,
-//               name: client.firstName,
-//               lastName: client.lastName,
-//               email: "example@example.com",
-//               phone: "123-456-7890",
-//               budget: 1000,
-//               favoriteEventType: 1,
-//               favoriteEventTypeDescription: "Music",
-//               nextTripLocation: client.location,
-//               nextTripDate: client.nextTripDate,
-//             })),
-//           },
-//         });
-//       }, 1000); // Simulate a network delay
-//     });
-//   }
-// );
-
-//  simulate to add a new client
-// export const addClient = createAsyncThunk(
-//   "clients/addClient",
-//   async (newClient, thunkAPI) => {
-//     return new Promise((resolve) => {
-//       setTimeout(() => {
-//         const newClientWithId = {
-//           ...newClient,
-//           id: mockClients.length + 1,
-//           nextTripDate: newClient.nextTripDate || "2024-11-22T15:50:36.670Z", // Default date if not provided
-//         };
-//         mockClients.push(newClientWithId); // Add the new client to the mock data
-
-//         const state = thunkAPI.getState();
-//         const { clients, pageSize, currentPage } = state.clients;
-//         const totalClients = clients.length + 1;
-//         const totalPages = Math.ceil(totalClients / pageSize);
-
-//         const newCurrentPage =
-//           clients.length % pageSize === 0 ? currentPage + 1 : currentPage;
-
-//         resolve({
-//           ...newClientWithId,
-//           totalPages,
-//           currentPage: newCurrentPage,
-//         });
-//       }, 500);
-//     });
-//   }
-// );
-
-// simulate to delete client
-// export const deleteClient = createAsyncThunk(
-//   "clients/deleteClient",
-//   async (clientId) => {
-//     return new Promise((resolve) => {
-//       setTimeout(() => {
-        
-//         mockClients.filter((client) => client.id !== clientId);
-
-
-//         resolve(clientId);
-//       }, 1000); // Simulate a network delay
-//     });
-//   }
-// );
 
  // Async thunk to fetch clients with pagination and search
 export const fetchClients = createAsyncThunk(
@@ -232,9 +80,16 @@ export const deleteClient = createAsyncThunk('clients/deleteClient', async (clie
     throw new Error('Failed to delete client');
   }
 
-  // Fetch the updated list of clients after deletion
-  const currentPage = state.clients.currentPage;
+  // fetch the updated list of clients after deletion with the current page and page size depending on the totalPages
+  let currentPage = state.clients.currentPage;
   const pageSize = state.clients.pageSize;
+  const total = state.clients.total - 1;
+  const totalPages = Math.ceil(total / pageSize);
+
+  if (currentPage > totalPages) {
+    currentPage = totalPages;
+  }
+
   const updatedClientsResponse = await fetch(`${API_BASE_URL}/Client/list?currentPage=${currentPage}&pageSize=${pageSize}`, {
     method: 'GET',
     headers: {
