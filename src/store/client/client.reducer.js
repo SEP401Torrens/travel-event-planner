@@ -69,7 +69,6 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 //     return new Promise((resolve) => {
 //       setTimeout(() => {
 //         let filteredClients = mockClients;
-//         console.log("searchTerm", searchTerm);
 //         if (searchTerm) {
 //           filteredClients = filteredClients.filter((client) =>
 //             `${client.firstName} ${client.lastName}`
@@ -130,7 +129,6 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 //         const newCurrentPage =
 //           clients.length % pageSize === 0 ? currentPage + 1 : currentPage;
 
-//         console.log("newCurrentPage", newCurrentPage);
 //         resolve({
 //           ...newClientWithId,
 //           totalPages,
@@ -163,7 +161,6 @@ export const fetchClients = createAsyncThunk(
   async ({ currentPage, pageSize, searchTerm }, thunkAPI) => {
      const state = thunkAPI.getState();
      const token = state.auth.token;
-    console.log("fetchClients token", token)
     let url = `${API_BASE_URL}/Client/list?currentPage=${currentPage}&pageSize=${pageSize}`;
     if (searchTerm) {
       url += `&searchTerm=${searchTerm}`;
@@ -182,7 +179,6 @@ export const fetchClients = createAsyncThunk(
     }
 
     const data = await response.json();
-    console.log("data", data)
     return data;
   }
 );
@@ -236,7 +232,23 @@ export const deleteClient = createAsyncThunk('clients/deleteClient', async (clie
     throw new Error('Failed to delete client');
   }
 
-  return clientId;
+  // Fetch the updated list of clients after deletion
+  const currentPage = state.clients.currentPage;
+  const pageSize = state.clients.pageSize;
+  const updatedClientsResponse = await fetch(`${API_BASE_URL}/Client/list?currentPage=${currentPage}&pageSize=${pageSize}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`, // Include the Bearer token
+    },
+  });
+
+  if (!updatedClientsResponse.ok) {
+    throw new Error('Failed to fetch updated clients');
+  }
+
+  const updatedClientsData = await updatedClientsResponse.json();
+  return updatedClientsData;
 });
 
 const clientSlice = createSlice({
@@ -303,24 +315,27 @@ const clientSlice = createSlice({
         state.total += 1;
 
         const totalPages = Math.ceil(state.total / state.pageSize);
-        const newCurrentPage =
-          state.total % state.pageSize === 0
-            ? state.currentPage + 1
-            : state.currentPage;
+        const newCurrentPage = state.total % state.pageSize === 1 ? state.currentPage + 1 : state.currentPage;
 
         state.totalPages = totalPages;
         state.currentPage = newCurrentPage;
       })
       .addCase(deleteClient.fulfilled, (state, action) => {
-        const clientId = action.payload;
-        state.clients = state.clients.filter(client => client.id !== clientId);
-        state.total -= 1;
-        state.totalPages = Math.ceil(state.total / state.pageSize);
-
-        // If the current page is now empty, move to the previous page
-        if (state.clients.length === 0 && state.currentPage > 1) {
-          state.currentPage -= 1;
-        }
+         state.clients = action.payload.data.list.map((client) => ({
+          id: client.id,
+          firstName: client.name,
+          lastName: client.lastName,
+          phone: client.phone,
+          email: client.email,
+          budget: client.budget,
+          favoriteEventTypes: { value: client.favoriteEventType, label: client.favoriteEventTypeDescription },
+          nextTripDate: client.nextTripDate !== "0001-01-01T00:00:00+00:00" ? format(new Date(client.nextTripDate), "dd/MM/yyyy") : null,
+          location: client.nextTripLocation,
+        }));
+        state.total = action.payload.data.totalItems;
+        state.totalPages = action.payload.data.totalPages;
+        state.pageSize = action.payload.data.size;
+        state.currentPage = action.payload.data.currentPage;
       });
   },
 });

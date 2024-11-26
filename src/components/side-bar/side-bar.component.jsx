@@ -25,7 +25,6 @@ const SideBar = () => {
   };
 
   const handleGoToClients = () => {
-    console.log("clicks");
     navigate("/main");
   };
 

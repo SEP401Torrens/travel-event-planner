@@ -37,7 +37,6 @@ const ClientCard = ({ client }) => {
   };
 
   const handleConfirmDelete = () => {
-    console.log("delete client", client);
     dispatch(deleteClient(client.id));
     setIsConfirmationModalOpen(false);
   };
