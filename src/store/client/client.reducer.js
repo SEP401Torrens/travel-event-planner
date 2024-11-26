@@ -106,17 +106,19 @@ export const deleteClient = createAsyncThunk('clients/deleteClient', async (clie
   return updatedClientsData;
 });
 
+const INITIAL_STATE = {
+  clients: [],
+  total: 0,
+  totalPages: 0,
+  pageSize: 8,
+  currentPage: 1,
+  status: "idle",
+  error: null,
+};
+
 const clientSlice = createSlice({
   name: "clients",
-  initialState: {
-    clients: [],
-    total: 0,
-    totalPages: 0,
-    pageSize: 8,
-    currentPage: 1,
-    status: "idle",
-    error: null,
-  },
+  initialState: INITIAL_STATE,
   reducers: {
     updateClientTrip: (state, action) => {
       const { clientId, nextTripDate, location } = action.payload;
