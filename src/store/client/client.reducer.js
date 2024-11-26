@@ -31,7 +31,7 @@ export const fetchClients = createAsyncThunk(
   }
 );
 
-// to add new a client
+// Async thunk to add new a client
 export const addClient = createAsyncThunk('clients/addClient', async (newClient, thunkAPI) => {
   const state = thunkAPI.getState();
   const token = state.auth.token;
@@ -63,7 +63,7 @@ export const addClient = createAsyncThunk('clients/addClient', async (newClient,
     };
   };
 
-//   to delete a client
+// Async thunk to delete a client
 export const deleteClient = createAsyncThunk('clients/deleteClient', async (clientId,thunkAPI) => {
   const state = thunkAPI.getState();
   const token = state.auth.token;
