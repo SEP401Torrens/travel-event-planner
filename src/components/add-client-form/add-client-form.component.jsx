@@ -19,6 +19,7 @@ import { ReactComponent as CloseButton } from "../../assets/icons/close.svg";
 import { addClient } from "../../store/client/client.reducer";
 import { selectCategories } from "../../store/categories/categories.selector";
 import Select from "react-select";
+import { notification } from "../../utils/notification.utils";
 
 const defaultFormFields = {
   firstName: "",
@@ -63,9 +64,16 @@ const AddClientModal = ({ onClose }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    dispatch(addClient(formFields)).then(() => {
-      onClose();
-    });
+
+
+    dispatch(addClient(formFields)).then((action) => {
+      if (action.type === addClient.fulfilled.type) {
+        notification("Successfully created", "success");
+        onClose();
+      } else {
+        notification("Something went wrong, please try again.", "error");
+      }
+    })
   };
 
   const categoryOptions = categories.map((category) => ({

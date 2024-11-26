@@ -320,6 +320,10 @@ const clientSlice = createSlice({
         state.totalPages = totalPages;
         state.currentPage = newCurrentPage;
       })
+      .addCase(addClient.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
       .addCase(deleteClient.fulfilled, (state, action) => {
          state.clients = action.payload.data.list.map((client) => ({
           id: client.id,

@@ -18,6 +18,7 @@ import { useState } from "react";
 import ConfirmationModal from "../confirmation-modal/confirmation-modal.component";
 import { useDispatch } from "react-redux";
 import { deleteClient } from "../../store/client/client.reducer";
+import { notification } from "../../utils/notification.utils";
 
 const ClientCard = ({ client }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,6 +39,7 @@ const ClientCard = ({ client }) => {
 
   const handleConfirmDelete = () => {
     dispatch(deleteClient(client.id));
+    notification("Successfully deleted", "success");
     setIsConfirmationModalOpen(false);
   };
 
