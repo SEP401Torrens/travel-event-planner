@@ -25,14 +25,14 @@ const ShowClient = ({ client, onClose }) => {
         <SidebarContainer>
           <Sidebar>
             <SidebarItem
-              className={activeTab === 'info' ? 'active' : ''}
+              $isActive={activeTab === "info"}
               onClick={() => setActiveTab("info")}
             >
               <InformationButton />
               Info
             </SidebarItem>
             <SidebarItem
-              className={activeTab === 'trips' ? 'active' : ''}
+              $isActive={activeTab === "trips"}
               onClick={() => setActiveTab("trips")}
             >
               <GlobeButton />
@@ -47,12 +47,8 @@ const ShowClient = ({ client, onClose }) => {
               <CloseButton onClick={onClose} />
             </ModalHeader>
             <Divider />
-            {activeTab === "info" && (
-              <ClientInfoContent client={client} />
-            )}
-            {activeTab === "trips" && (
-              <TripContent clientId={client.id}/>
-            )}
+            {activeTab === "info" && <ClientInfoContent client={client} />}
+            {activeTab === "trips" && <TripContent clientId={client.id} />}
           </div>
         </SidebarContainer>
       </ModalContent>

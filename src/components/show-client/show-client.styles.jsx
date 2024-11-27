@@ -76,7 +76,7 @@ export const SidebarItem = styled.div`
   display: flex;
   align-items: center;
   font-weight: bold;
-  color: ${(props) => (props.isActive ? "#20c997" : "white")};
+  color: ${(props) => (props.$isActive ? "#20c997" : "white")};
   padding: 10px;
   border-radius: 5px;
   cursor: pointer;
@@ -86,7 +86,7 @@ export const SidebarItem = styled.div`
     width: 24px;
     height: 24px;
     margin-right: 10px;
-    color: ${(props) => (props.isActive ? "#20c997" : "white")};
+    color: ${(props) => (props.$isActive ? "#20c997" : "white")};
     cursor: pointer;
   }
 
