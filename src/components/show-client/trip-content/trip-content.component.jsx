@@ -9,13 +9,13 @@ import {
 import { ReactComponent as TrashButton } from "../../../assets/icons/trash.svg";
 import { ReactComponent as ShowButton } from "../../../assets/icons/eye.svg";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
-    deleteClientTrip,
+  deleteClientTrip,
   fetchClientTrips,
   setCurrentPage,
 } from "../../../store/client/client.trip.reducer";
-import { notification } from "../../../utils/notification.utils"
+import { notification } from "../../../utils/notification.utils";
 import { clearClientTrip } from "../../../store/client/client.reducer";
 
 const TripContent = ({ clientId }) => {
@@ -23,34 +23,57 @@ const TripContent = ({ clientId }) => {
   const { trips, currentPage, totalPages, status } = useSelector(
     (state) => state.clientTrips
   );
+  const [initialPageSet, setInitialPageSet] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchClientTrips({ clientId, currentPage, pageSize: 8 }));
-  }, [dispatch, clientId, currentPage]);
+    if (!initialPageSet) {
+      if (currentPage[clientId] === undefined) {
+        dispatch(setCurrentPage({ clientId, page: 1 }));
+      } else {
+        dispatch(
+          fetchClientTrips({
+            clientId,
+            currentPage: currentPage[clientId],
+            pageSize: 8,
+          })
+        );
+      }
+      setInitialPageSet(true);
+    } else if (currentPage[clientId] !== undefined) {
+      dispatch(
+        fetchClientTrips({
+          clientId,
+          currentPage: currentPage[clientId],
+          pageSize: 8,
+        })
+      );
+    }
+  }, [dispatch, clientId, currentPage, initialPageSet]);
 
   const handlePageChange = (newPage) => {
-    dispatch(setCurrentPage(newPage));
+    dispatch(setCurrentPage({ clientId, page: newPage }));
   };
 
   const handleShowTrip = (tripId) => {
-    console.log("handleShowTrip", tripId)
-  }
+    console.log("handleShowTrip", tripId);
+  };
 
   const handleRemoveTrip = (tripId) => {
-    dispatch(deleteClientTrip(tripId))
-      .then((action) => {
-        if (action.type === deleteClientTrip.fulfilled.type) {
-          // Check if there are any remaining trips for the client
-          const remainingTrips = trips.filter((trip) => trip.id !== tripId);
-          if (remainingTrips.length === 0) {
-            dispatch(clearClientTrip({ clientId }));
-          }
-          notification("Successfully trip deleted", "success");
-        } else {
-          console.error('Failed to delete trip:', action.error.message);
+    dispatch(deleteClientTrip(tripId)).then((action) => {
+      if (action.type === deleteClientTrip.fulfilled.type) {
+        // Check if there are any remaining trips for the client
+        const remainingTrips = (trips[clientId] || []).filter(
+          (trip) => trip.id !== tripId
+        );
+        if (remainingTrips.length === 0) {
+          dispatch(clearClientTrip({ clientId }));
         }
-      });
-  }
+        notification("Successfully trip deleted", "success");
+      } else {
+        console.error("Failed to delete trip:", action.error.message);
+      }
+    });
+  };
 
   return (
     <TripContentContainer>
@@ -64,8 +87,10 @@ const TripContent = ({ clientId }) => {
         </TripHeader>
 
         {status === "loading" && <div>Loading...</div>}
-        {status === "succeeded" && trips.length > 0 ? (
-          trips.map((trip) => (
+        {status === "succeeded" &&
+        trips[clientId] &&
+        trips[clientId].length > 0 ? (
+          trips[clientId].map((trip) => (
             <TripRow key={trip.id}>
               <span>{trip.location}</span>
               <span>{trip.travelStartDate}</span>
@@ -85,14 +110,14 @@ const TripContent = ({ clientId }) => {
       {totalPages > 1 && (
         <div>
           <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
+            onClick={() => handlePageChange(currentPage[clientId] - 1)}
+            disabled={currentPage[clientId] === 1}
           >
             Previous
           </button>
           <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
+            onClick={() => handlePageChange(currentPage[clientId] + 1)}
+            disabled={currentPage[clientId] === totalPages[clientId]}
           >
             Next
           </button>

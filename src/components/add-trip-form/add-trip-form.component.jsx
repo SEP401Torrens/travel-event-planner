@@ -115,7 +115,7 @@ const AddTripForm = ({ client, onClose }) => {
             budget: tripDetails.budget,
           })
         );
-            fetchEvents();
+          fetchEvents();
           setCurrentModal('event'); 
         } else {
           console.error('Failed to add client trip:', action.error.message);

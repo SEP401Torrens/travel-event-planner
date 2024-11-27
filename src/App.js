@@ -9,7 +9,7 @@ const App = () => {
   const isAuth = useSelector(isAuthenticated);
 
   return (
-    <Routes future={{ v7_startTransition: true }}>
+    <Routes>
       <Route
         path="/"
         element={isAuth ? <Navigate to="/main" /> : <SignInForm />}

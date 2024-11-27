@@ -25,7 +25,7 @@ export const fetchClientTrips = createAsyncThunk(
     }
 
     const data = await response.json();
-    return data;
+    return { clientId, data };
   }
 );
 
@@ -77,21 +77,22 @@ export const addClientTrip = createAsyncThunk(
 );
 
 const INITIAL_STATE = {
-  trips: [],
-  total: 0,
-  totalPages: 0,
-  pageSize: 8,
-  currentPage: 1,
-  status: "idle",
-  error: null,
-};
+    trips: {},
+    total: {},
+    totalPages: {},
+    pageSize: 8, // Default page size
+    currentPage: {},
+    status: 'idle',
+    error: null,
+  };
 
 const clientTripSlice = createSlice({
   name: "clientTrips",
   initialState: INITIAL_STATE,
   reducers: {
     setCurrentPage: (state, action) => {
-      state.currentPage = action.payload;
+      const { clientId, page } = action.payload;
+      state.currentPage[clientId] = page;
     },
   },
   extraReducers: (builder) => {
@@ -100,57 +101,65 @@ const clientTripSlice = createSlice({
         state.status = "loading";
       })
       .addCase(fetchClientTrips.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.trips = action.payload.data.list.map((trip) => ({
+       const { clientId, data } = action.payload;
+        state.status = 'succeeded';
+        state.trips[clientId] = data.data.list.map((trip) => ({
           id: trip.id,
-          clientId: trip.cliendId,
           location: trip.locationDescription,
           travelStartDate: format(new Date(trip.startDate), "dd/MM/yyyy"),
           travelEndDate: format(new Date(trip.endDate), "dd/MM/yyyy"),
           budget: trip.budget,
         }));
-        state.total = action.payload.data.totalItems;
-        state.totalPages = action.payload.data.totalPages;
-        state.pageSize = action.payload.data.size;
-        state.currentPage = action.payload.data.currentPage;
+        state.total[clientId] = data.data.totalItems;
+        state.totalPages[clientId] = data.data.totalPages;
+        state.pageSize = data.data.size;
+        state.currentPage[clientId] = data.data.currentPage;
       })
       .addCase(fetchClientTrips.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       })
       .addCase(deleteClientTrip.fulfilled, (state, action) => {
-        const clientTripId = action.payload;
-        state.trips = state.trips.filter((trip) => trip.id !== clientTripId);
-        state.total -= 1;
-        state.totalPages = Math.ceil(state.total / state.pageSize);
+         const clientTripId = action.payload;
+        const clientId = Object.keys(state.trips).find(clientId =>
+          state.trips[clientId].some(trip => trip.id === clientTripId)
+        );
+        state.trips[clientId] = state.trips[clientId].filter(trip => trip.id !== clientTripId);
+        state.total[clientId] -= 1;
+        state.totalPages[clientId] = Math.ceil(state.total[clientId] / state.pageSize);
 
         // If the current page is now empty, move to the previous page
-        if (state.trips.length === 0 && state.currentPage > 1) {
-          state.currentPage -= 1;
+        if (state.trips[clientId].length === 0 && state.currentPage[clientId] > 1) {
+          state.currentPage[clientId] -= 1;
         }
       })
       .addCase(addClientTrip.fulfilled, (state, action) => {
-        state.trips.push({
-          id: action.payload.id,
-          clientId: action.payload.clientId,
-          location: action.payload.location,
-          travelStartDate: format(
-            new Date(action.payload.startDate),
-            "dd/MM/yyyy"
-          ),
-          travelEndDate: format(new Date(action.payload.endDate), "dd/MM/yyyy"),
-          budget: action.payload.budget,
+        const { clientId, id, location, startDate, endDate, budget } = action.payload;
+        if (!state.trips[clientId]) {
+          state.trips[clientId] = [];
+          state.total[clientId] = 0;
+          state.totalPages[clientId] = 0;
+          state.currentPage[clientId] = 1; // Initialize currentPage for new client
+        }
+        state.trips[clientId].push({
+          id,
+          location: location,
+          travelStartDate: startDate,
+          travelEndDate: endDate,
+          budget,
         });
-        state.total += 1;
+        state.total[clientId] += 1;
 
-        const totalPages = Math.ceil(state.total / state.pageSize);
-        const newCurrentPage =
-          state.total % state.pageSize === 1
-            ? state.currentPage + 1
-            : state.currentPage;
+        const totalPages = Math.ceil(state.total[clientId] / state.pageSize);
+        state.totalPages[clientId] = totalPages;
 
-        state.totalPages = totalPages;
-        state.currentPage = newCurrentPage;
+        // Only increment currentPage if the new trip causes a new page to be added
+        if (
+          state.total[clientId] % state.pageSize === 1 &&
+          state.total[clientId] > state.pageSize
+        ) {
+          state.currentPage[clientId] += 1;
+        }
       })
       .addCase(addClientTrip.rejected, (state, action) => {
         state.status = "failed";
