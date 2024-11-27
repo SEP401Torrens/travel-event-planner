@@ -19,24 +19,20 @@ import ClientInfoContent from "./client-info-content/client-info-content.compone
 const ShowClient = ({ client, onClose }) => {
   const [activeTab, setActiveTab] = useState("info");
 
-  const handleRemoveTrip = () => {
-    // Remove trip from the client
-  };
-
   return (
     <ModalOverlay>
       <ModalContent>
         <SidebarContainer>
           <Sidebar>
             <SidebarItem
-              isActive={activeTab === "info"}
+              className={activeTab === 'info' ? 'active' : ''}
               onClick={() => setActiveTab("info")}
             >
               <InformationButton />
               Info
             </SidebarItem>
             <SidebarItem
-              isActive={activeTab === "trips"}
+              className={activeTab === 'trips' ? 'active' : ''}
               onClick={() => setActiveTab("trips")}
             >
               <GlobeButton />
@@ -52,10 +48,10 @@ const ShowClient = ({ client, onClose }) => {
             </ModalHeader>
             <Divider />
             {activeTab === "info" && (
-              <ClientInfoContent client={client} / >
+              <ClientInfoContent client={client} />
             )}
             {activeTab === "trips" && (
-              <TripContent />
+              <TripContent clientId={client.id}/>
             )}
           </div>
         </SidebarContainer>

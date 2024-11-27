@@ -26,6 +26,8 @@ import { updateClientTrip } from "../../store/client/client.reducer";
 import { selectCategories } from "../../store/categories/categories.selector";
 import { selectLocations } from "../../store/location/location.selector";
 import Select from "react-select";
+import { addClientTrip } from "../../store/client/client.trip.reducer";
+import { format } from "date-fns";
 
 const defaultFormFields = {
   location: null,
@@ -60,10 +62,10 @@ const AddTripForm = ({ client, onClose }) => {
       newErrors.budget = "Budget interest is required";
     }
     if (!tripDetails.startDate) {
-      newErrors.next = "Start Date interest is required";
+      newErrors.startDate = "Start Date interest is required";
     }
     if (!tripDetails.endDate) {
-      newErrors.next = "Start End interest is required";
+      newErrors.endDate = "Start End interest is required";
     }
     setIsNextDisabled(Object.keys(newErrors).length > 0);
   }, [tripDetails]);
@@ -91,10 +93,34 @@ const AddTripForm = ({ client, onClose }) => {
     }
   };
 
+  // add client trip
   const handleNext = async () => {
-    // todo: to backend initial fetch with empty keyword
-    await fetchEvents();
-    setCurrentModal("event"); // Switch to event modal
+    dispatch(
+      addClientTrip({
+        clientId: client.id,
+        startDate: tripDetails.startDate,
+        endDate: tripDetails.endDate,
+        location: tripDetails.location.value.id,
+        interest: tripDetails.interest.value,
+        budget: tripDetails.budget,
+      })
+    ).then((action) => {
+        if (action.type === addClientTrip.fulfilled.type) {
+          dispatch(
+          updateClientTrip({
+            clientId: client.id,
+            nextTripDate: tripDetails.startDate,
+            location: tripDetails.location.value.country,
+            interest: tripDetails.interest,
+            budget: tripDetails.budget,
+          })
+        );
+            fetchEvents();
+          setCurrentModal('event'); 
+        } else {
+          console.error('Failed to add client trip:', action.error.message);
+        }
+      })
   };
 
   const handleSearch = async () => {
@@ -123,15 +149,8 @@ const AddTripForm = ({ client, onClose }) => {
 
   const handleSave = () => {
     //todo: send to backend
-    dispatch(
-      updateClientTrip({
-        clientId: client.id,
-        nextTripDate: tripDetails.startDate,
-        location: tripDetails.location.value.country,
-        interest: tripDetails.interest,
-        budget: tripDetails.budget,
-      })
-    );
+
+    
     onClose();
   };
 
@@ -234,11 +253,11 @@ const AddTripForm = ({ client, onClose }) => {
               </InputWrapper>
               <InputWrapper>
                 <Label>Travel Start Date</Label>
-                <div style={{ color: "#20c997" }}>{tripDetails.startDate}</div>
+                <div style={{ color: "#20c997" }}>{format(new Date(tripDetails.startDate), "dd/MM/yyyy")}</div>
               </InputWrapper>
               <InputWrapper>
                 <Label>Travel End Date</Label>
-                <div style={{ color: "#20c997" }}>{tripDetails.endDate}</div>
+                <div style={{ color: "#20c997" }}>{format(new Date(tripDetails.endDate), "dd/MM/yyyy")}</div>
               </InputWrapper>
             </FormRow>
             <Divider />

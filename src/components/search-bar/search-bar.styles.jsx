@@ -20,8 +20,8 @@ export const SearchInput = styled.input`
   }
 
   &:focus {
-    outline: none; /* Removes the black outline */
-    box-shadow: 0 0 0 2px #20c997; /* Optional: Add a custom highlight */
+    outline: none;
+    box-shadow: 0 0 0 2px #20c997;
   }
 `;
 

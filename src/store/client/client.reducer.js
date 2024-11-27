@@ -51,7 +51,8 @@ export const addClient = createAsyncThunk(
       throw new Error("Failed to add client");
     }
 
-    return newClient;
+    const data = await response.json();
+    return { id: data.data, ...newClient };
   }
 );
 
@@ -135,6 +136,14 @@ const clientSlice = createSlice({
       if (client) {
         client.nextTripDate = format(new Date(nextTripDate), "dd/MM/yyyy");
         client.location = location;
+      }
+    },
+    clearClientTrip: (state, action) => {
+      const { clientId } = action.payload;
+      const client = state.clients.find((client) => client.id === clientId);
+      if (client) {
+        client.nextTripDate = null;
+        client.location = null;
       }
     },
     setCurrentPage: (state, action) => {
@@ -227,6 +236,6 @@ const clientSlice = createSlice({
   },
 });
 
-export const { updateClientTrip, setCurrentPage } = clientSlice.actions;
+export const { updateClientTrip, setCurrentPage, clearClientTrip } = clientSlice.actions;
 
 export const clientReducer = clientSlice.reducer;

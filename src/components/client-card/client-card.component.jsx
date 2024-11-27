@@ -84,11 +84,11 @@ const ClientCard = ({ client }) => {
           <div>
             <DetailRow>
               <CalendarIcon />
-              <DetailText highlight="true">{client.nextTripDate}</DetailText>
+              <DetailText $highlight="true">{client.nextTripDate}</DetailText>
             </DetailRow>
             <DetailRow>
               <LocationIcon />
-              <DetailText highlight="true">{client.location}</DetailText>
+              <DetailText $highlight="true">{client.location}</DetailText>
             </DetailRow>
           </div>
         ) : (
