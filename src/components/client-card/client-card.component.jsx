@@ -12,6 +12,7 @@ import {
 import { ReactComponent as CalendarIcon } from "../../assets/icons/calendar.svg";
 import { ReactComponent as LocationIcon } from "../../assets/icons/location.svg";
 import { ReactComponent as DeleteIcon } from "../../assets/icons/close.svg";
+import { ReactComponent as ShowIcon } from "../../assets/icons/eye.svg";
 
 import AddTripForm from "../add-trip-form/add-trip-form.component";
 import { useState } from "react";
@@ -19,10 +20,14 @@ import ConfirmationModal from "../confirmation-modal/confirmation-modal.componen
 import { useDispatch } from "react-redux";
 import { deleteClient } from "../../store/client/client.reducer";
 import { notification } from "../../utils/notification.utils";
+import ShowClient from "../show-client/show-client.component";
 
 const ClientCard = ({ client }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+  const [isShowClientDetailsOpen, setIsShowClientDetailsOpen] = useState(false);
+  
+  
   const dispatch = useDispatch();
 
   const handleAddTripClick = () => {
@@ -47,6 +52,14 @@ const ClientCard = ({ client }) => {
     setIsConfirmationModalOpen(false);
   };
 
+  const handleShowClientDetails = () => {
+    setIsShowClientDetailsOpen(true)
+  }
+
+  const handleCloseShowClientModal = () =>{
+    setIsShowClientDetailsOpen(false)
+  }
+
   return (
     <ClientCardContainer>
       <ClientCardHeader>
@@ -59,6 +72,10 @@ const ClientCard = ({ client }) => {
       </ClientCardHeader>
       <Divider />
       <ClientCardDetails>
+        <DetailRow>
+          <DetailLabel>SHOW DETAILS</DetailLabel>
+          <ShowIcon onClick={handleShowClientDetails}/>
+        </DetailRow>
         <DetailRow>
           <DetailLabel>NEXT TRIP</DetailLabel>
         </DetailRow>
@@ -88,6 +105,9 @@ const ClientCard = ({ client }) => {
             onConfirm={handleConfirmDelete}
             onCancel={handleCancelDelete}
           />
+        )}
+        {isShowClientDetailsOpen && (
+          <ShowClient client={client} onClose={handleCloseShowClientModal}/>
         )}
       </ClientCardDetails>
     </ClientCardContainer>

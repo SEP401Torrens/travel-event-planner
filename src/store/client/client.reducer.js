@@ -152,6 +152,7 @@ const clientSlice = createSlice({
           id: client.id,
           firstName: client.name,
           lastName: client.lastName,
+          email: client.email,
           phone: client.phone,
           totalBudget: client.budget,
           favoriteEventTypes: {
@@ -178,6 +179,7 @@ const clientSlice = createSlice({
           id: action.payload.id,
           firstName: action.payload.firstName,
           lastName: action.payload.lastName,
+          email: action.payload.email,
           phone: action.payload.phone,
           totalBudget: action.payload.totalBudget,
           favoriteEventTypes: action.payload.favoriteEventTypes,
