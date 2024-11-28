@@ -1,3 +1,4 @@
+import {  useSelector } from "react-redux";
 import {
   Input,
   SearchBarContainer,
@@ -5,15 +6,27 @@ import {
   Select,
   RowContainer,
 } from "./search-bar-modal.styles";
+import { useState } from "react";
 
 const ModalSearchBar = ({
+  tripId,
   searchKeyword,
   handleInputChange,
-  availableEvents,
-  selectedEvent,
   handleAddEvent,
   onSearch,
 }) => {
+  const eventStatus = useSelector((state) => state.events.status);
+  const availableEvents = useSelector((state) => state.events.events[tripId]);
+  const [selectedEvent, setSelectedEvent] = useState('');
+
+  const handleSelectEvent = (eventId) => {
+    const event = availableEvents.find((event) => event.id === eventId);
+    if (event) {
+      setSelectedEvent(event);
+      handleAddEvent(event); // Call the callback function to add the event
+    }
+  };
+
   return (
     <SearchBarContainer>
       <RowContainer>
@@ -27,17 +40,15 @@ const ModalSearchBar = ({
           SEARCH
         </SearchButton>
       </RowContainer>
-      {availableEvents.length > 0 && (
-        <Select
-          onChange={(e) => handleAddEvent(e.target.value)} // Pass the selected value
-          value={selectedEvent}
-        >
+      {eventStatus === 'loading' && <div>Loading events...</div>}
+      {eventStatus === 'succeeded' && (
+        <Select onChange={(e) => handleSelectEvent(e.target.value)} value={selectedEvent.id || ''}>
           <option value="" disabled>
             Select an event
           </option>
           {availableEvents.map((event) => (
             <option key={event.id} value={event.id}>
-              {event.name} - {event.date}
+              {event.name} - {event.startDate}
             </option>
           ))}
         </Select>

@@ -28,6 +28,8 @@ import { selectLocations } from "../../store/location/location.selector";
 import Select from "react-select";
 import { addClientTrip } from "../../store/client/client.trip.reducer";
 import { format } from "date-fns";
+import { fetchEvents } from "../../store/events/events.reducer";
+//import { setCurrentPage } from "../../store/events/events.reducer";
 
 const defaultFormFields = {
   location: null,
@@ -42,10 +44,10 @@ const AddTripForm = ({ client, onClose }) => {
   const [tripDetails, setTripDetails] = useState(defaultFormFields);
   const [currentModal, setCurrentModal] = useState("trip"); // 'trip' or 'event'
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [availableEvents, setAvailableEvents] = useState([]);
   const [selectedEvents, setSelectedEvents] = useState([]);
   const [isNextDisabled, setIsNextDisabled] = useState(true);
-
+  const [tripId, setTripId] = useState(null);
+  //
   const dispatch = useDispatch();
   const categories = useSelector(selectCategories);
   const locations = useSelector(selectLocations);
@@ -70,18 +72,29 @@ const AddTripForm = ({ client, onClose }) => {
     setIsNextDisabled(Object.keys(newErrors).length > 0);
   }, [tripDetails]);
 
-  const fetchEvents = async () => {
-    const simulatedEvents = [
-      { id: 1, name: "Concert A", date: "2024-12-01" },
-      { id: 2, name: "Festival B", date: "2024-12-05" },
-      { id: 3, name: "Exhibition C", date: "2024-12-10" },
-    ].filter((event) =>
-      event.name.toLowerCase().includes(searchKeyword.toLowerCase())
-    );
+  useEffect(() => {
+    if (tripId) {
+      console.log("fetch", {
+        tripId,
+        currentPage: 1,
+        pageSize: 10,
+        startDateTime: tripDetails.startDate,
+        endDateTime: tripDetails.endDate,
+        countryCode: tripDetails.location.value.code,
+      });
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setAvailableEvents(simulatedEvents);
-  };
+      dispatch(
+        fetchEvents({
+          tripId,
+          currentPage: 1,
+          pageSize: 10,
+          startDateTime: tripDetails.startDate,
+          endDateTime: tripDetails.endDate,
+          countryCode: tripDetails.location.value.code,
+        })
+      );
+    }
+  }, [dispatch, tripDetails, tripId]);
 
   const handleTripChange = (selectedOption, actionMeta) => {
     if (actionMeta) {
@@ -105,8 +118,10 @@ const AddTripForm = ({ client, onClose }) => {
         budget: tripDetails.budget,
       })
     ).then((action) => {
-        if (action.type === addClientTrip.fulfilled.type) {
-          dispatch(
+      if (action.type === addClientTrip.fulfilled.type) {
+        const newTripId = action.payload.id; // Get the tripId from the created trip
+        setTripId(newTripId); // Set the tripId state
+        dispatch(
           updateClientTrip({
             clientId: client.id,
             nextTripDate: tripDetails.startDate,
@@ -115,24 +130,30 @@ const AddTripForm = ({ client, onClose }) => {
             budget: tripDetails.budget,
           })
         );
-          fetchEvents();
-          setCurrentModal('event'); 
-        } else {
-          console.error('Failed to add client trip:', action.error.message);
-        }
-      })
+
+        setCurrentModal("event");
+      } else {
+        console.error("Failed to add client trip:", action.error.message);
+      }
+    });
   };
 
-  const handleSearch = async () => {
-    //todo: to backend fetch events
-    await fetchEvents();
+  const handleSearch = () => {
+    if (tripId) {
+      dispatch(fetchEvents({
+        tripId, 
+        currentPage: 1,
+        pageSize: 10,
+        keyword: searchKeyword,
+        startDateTime:  tripDetails.startDate,
+        endDateTime:  tripDetails.endDate,
+        countryCode: tripDetails.location.value.code,
+      }));
+    }
+    // dispatch(setCurrentPage(1));
   };
 
-  const handleAddEvent = (eventId) => {
-    const selectedEvent = availableEvents.find(
-      (event) => event.id === parseInt(eventId, 10)
-    );
-
+  const handleAddEvent = (selectedEvent) => {
     if (
       selectedEvent &&
       !selectedEvents.some((event) => event.id === selectedEvent.id)
@@ -142,15 +163,17 @@ const AddTripForm = ({ client, onClose }) => {
   };
 
   const handleRemoveEvent = (eventId) => {
+    console.log("selectedEvents", selectedEvents)
+    console.log("eventId", eventId)
     setSelectedEvents((prev) =>
-      prev.filter((event) => event.id !== parseInt(eventId, 10))
+      prev.filter((event) => event.id !== eventId)
     );
   };
 
   const handleSave = () => {
     //todo: send to backend
+    console.log("selectedEvents", selectedEvents);
 
-    
     onClose();
   };
 
@@ -253,22 +276,26 @@ const AddTripForm = ({ client, onClose }) => {
               </InputWrapper>
               <InputWrapper>
                 <Label>Travel Start Date</Label>
-                <div style={{ color: "#20c997" }}>{format(new Date(tripDetails.startDate), "dd/MM/yyyy")}</div>
+                <div style={{ color: "#20c997" }}>
+                  {format(new Date(tripDetails.startDate), "dd/MM/yyyy")}
+                </div>
               </InputWrapper>
               <InputWrapper>
                 <Label>Travel End Date</Label>
-                <div style={{ color: "#20c997" }}>{format(new Date(tripDetails.endDate), "dd/MM/yyyy")}</div>
+                <div style={{ color: "#20c997" }}>
+                  {format(new Date(tripDetails.endDate), "dd/MM/yyyy")}
+                </div>
               </InputWrapper>
             </FormRow>
             <Divider />
-            <Label style={{ marginBottom: "10px", color: "#ffffff" }}>
+            <Label style={{ marginBottom: "10px", color: "white" }}>
               Events
             </Label>
             <ModalSearchBar
+              tripId={tripId}
               searchKeyword={searchKeyword}
               handleInputChange={(e) => setSearchKeyword(e.target.value)}
               onSearch={handleSearch}
-              availableEvents={availableEvents}
               handleAddEvent={handleAddEvent}
             />
 

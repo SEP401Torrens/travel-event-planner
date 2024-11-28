@@ -39,11 +39,6 @@ export const SearchButton = styled.button`
   &:hover {
     background-color: #0ac3e6;
   }
-
-  &:disabled {
-    background-color: #d9d9d9;
-    cursor: not-allowed;
-  }
 `;
 
 export const Select = styled.select`
