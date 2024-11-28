@@ -28,7 +28,7 @@ export const Input = styled.input`
 
 export const SearchButton = styled.button`
   background-color: #20c997;
-  color: #1E0E62;
+  color: #1e0e62;
   font-size: 16px;
   font-weight: bold;
   padding: 10px 20px;
@@ -52,3 +52,38 @@ export const Select = styled.select`
     border-color: #0ad4fa;
   }
 `;
+
+export const customSelectStyles = {
+  control: (provided) => ({
+    ...provided,
+    width: "100%",
+    padding: "2px",
+    border: "1px solid white",
+    borderColor: "red",
+    borderRadius: "5px",
+    fontSize: "16px",
+    color: "black",
+    boxShadow: "none",
+
+    "&:hover": {
+      borderColor: "white",
+    },
+    "&:focus": {
+      borderColor: "#20c997",
+      boxShadow: "0 0 0 1px #00c896",
+    },
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    opacity: 0.8,
+  }),
+
+  option: (provided, state) => ({
+    ...provided,
+    color: "black",
+    backgroundColor: state.isSelected ? "#20c997" : "transparent",
+    "&:hover": {
+      backgroundColor: "#d5f5df",
+    },
+  }),
+};

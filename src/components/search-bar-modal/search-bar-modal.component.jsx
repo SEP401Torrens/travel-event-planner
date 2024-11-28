@@ -3,10 +3,12 @@ import {
   Input,
   SearchBarContainer,
   SearchButton,
-  Select,
+  // Select,
   RowContainer,
+  customSelectStyles,
 } from "./search-bar-modal.styles";
 import { useState } from "react";
+import Select from "react-select";
 
 const ModalSearchBar = ({
   tripId,
@@ -19,13 +21,22 @@ const ModalSearchBar = ({
   const availableEvents = useSelector((state) => state.events.events[tripId]);
   const [selectedEvent, setSelectedEvent] = useState('');
 
-  const handleSelectEvent = (eventId) => {
-    const event = availableEvents.find((event) => event.id === eventId);
+  const handleSelectEvent = (selectedOption) => {
+    console.log("selectedOption", selectedOption);
+    const event = availableEvents.find((event) => event.id === selectedOption.value.id);
+    console.log("event", event);
     if (event) {
       setSelectedEvent(event);
       handleAddEvent(event); // Call the callback function to add the event
     }
   };
+
+   const eventOptions = availableEvents?.map((event) => ({
+     value: event,
+     label: `${event.name} - ${event.startDate}`,
+   }));
+
+  console.log("eventOptions", eventOptions);
 
   return (
     <SearchBarContainer>
@@ -42,16 +53,13 @@ const ModalSearchBar = ({
       </RowContainer>
       {eventStatus === 'loading' && <div>Loading events...</div>}
       {eventStatus === 'succeeded' && (
-        <Select onChange={(e) => handleSelectEvent(e.target.value)} value={selectedEvent.id || ''}>
-          <option value="" disabled>
-            Select an event
-          </option>
-          {availableEvents.map((event) => (
-            <option key={event.id} value={event.id}>
-              {event.name} - {event.startDate}
-            </option>
-          ))}
-        </Select>
+        <Select
+          styles={customSelectStyles}
+          options={eventOptions}
+          onChange={handleSelectEvent}
+          value={selectedEvent ?  { value: selectedEvent, label: `${selectedEvent.name} - ${selectedEvent.startDate}` } : null}
+          placeholder="Select an event"
+        />
       )}
     </SearchBarContainer>
   );

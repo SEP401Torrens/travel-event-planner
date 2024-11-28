@@ -154,6 +154,7 @@ const AddTripForm = ({ client, onClose }) => {
   };
 
   const handleAddEvent = (selectedEvent) => {
+    console.log("selectedEvent handleADD", selectedEvent)
     if (
       selectedEvent &&
       !selectedEvents.some((event) => event.id === selectedEvent.id)
@@ -310,7 +311,7 @@ const AddTripForm = ({ client, onClose }) => {
                 selectedEvents.map((event) => (
                   <EventRow key={event.id}>
                     <span>{event.name}</span>
-                    <span>{event.date}</span>
+                    <span>{event.startDate}</span>
 
                     <TrashButton onClick={() => handleRemoveEvent(event.id)} />
                   </EventRow>
