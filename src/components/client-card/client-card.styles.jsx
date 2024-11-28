@@ -60,6 +60,11 @@ export const DetailRow = styled.div`
     height: 24px;
     margin-right: 10px;
     color: white;
+    cursor: pointer;
+
+    &:hover {
+      color: #20c997;
+    }
   }
 `;
 
@@ -73,7 +78,7 @@ export const DetailLabel = styled.span`
 
 export const DetailText = styled.span`
   font-size: 14px;
-  color: ${(props) => (props.highlight ? "#20c997" : "white")};
+  color: ${(props) => (props.$highlight ? "#20c997" : "white")};
 `;
 
 export const AddTripButton = styled.button`

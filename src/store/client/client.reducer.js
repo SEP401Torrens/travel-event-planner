@@ -1,215 +1,134 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { format } from "date-fns";
 
-export const mockClients = [
-  {
-    id: 1,
-    firstName: "Nicole",
-    lastName: "Fisher",
-    phone: "8090001111",
-    nextTripDate: "2024-11-22T15:50:36.670Z",
-    location: "Dominican Rep.",
-  },
-  {
-    id: 2,
-    firstName: "James",
-    lastName: "Carter",
-    phone: "8090001111",
-    nextTripDate: "2024-11-22T15:50:36.670Z",
-    location: "United States",
-  },
-  {
-    id: 3,
-    firstName: "Emily",
-    lastName: "Johnson",
-    phone: "8090001111",
-    nextTripDate: "2024-11-22T15:50:36.670Z",
-    location: "Canada",
-  },
-  {
-    id: 4,
-    firstName: "Emily",
-    lastName: "Johnson",
-    phone: "8090001111",
-    nextTripDate: "2024-11-22T15:50:36.670Z",
-    location: "Canada",
-  },
-  {
-    id: 5,
-    firstName: "Emily",
-    lastName: "Johnson",
-    phone: "8090001111",
-    nextTripDate: "2024-11-22T15:50:36.670Z",
-    location: "Canada",
-  },
-  {
-    id: 6,
-    firstName: "Emily",
-    lastName: "Johnson",
-    phone: "8090001111",
-    nextTripDate: "2024-11-22T15:50:36.670Z",
-    location: "Canada",
-  },
-  {
-    id: 7,
-    firstName: "Emily",
-    lastName: "Johnson",
-    phone: "8090001111",
-    nextTripDate: "2024-11-22T15:50:36.670Z",
-    location: "Canada",
-  },
-];
-
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-// simulate to fetch clients
+// Async thunk to fetch clients with pagination and search
 export const fetchClients = createAsyncThunk(
   "clients/fetchClients",
-  async ({ currentPage, pageSize, searchTerm }) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        let filteredClients = mockClients;
-        console.log("searchTerm", searchTerm);
-        if (searchTerm) {
-          filteredClients = filteredClients.filter((client) =>
-            `${client.firstName} ${client.lastName}`
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase())
-          );
-        }
-        const startIndex = (currentPage - 1) * pageSize;
-        const paginatedClients = filteredClients.slice(
-          startIndex,
-          startIndex + pageSize
-        );
-        resolve({
-          message: "Success",
-          status: 0,
-          data: {
-            totalPages: Math.ceil(filteredClients.length / pageSize),
-            totalItems: filteredClients.length,
-            currentPage,
-            size: pageSize,
-            list: paginatedClients.map((client) => ({
-              id: client.id,
-              name: client.firstName,
-              lastName: client.lastName,
-              email: "example@example.com",
-              phone: "123-456-7890",
-              budget: 1000,
-              favoriteEventType: 1,
-              favoriteEventTypeDescription: "Music",
-              nextTripLocation: client.location,
-              nextTripDate: client.nextTripDate,
-            })),
-          },
-        });
-      }, 1000); // Simulate a network delay
+  async ({ currentPage, pageSize, searchTerm }, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const token = state.auth.token;
+    let url = `${API_BASE_URL}/Client/list?currentPage=${currentPage}&pageSize=${pageSize}`;
+    if (searchTerm) {
+      url += `&searchTerm=${searchTerm}`;
+    }
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Include the Bearer token
+      },
     });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch clients");
+    }
+
+    const data = await response.json();
+    return data;
   }
 );
 
-//  simulate to add a new client
+// Async thunk to add new a client
 export const addClient = createAsyncThunk(
   "clients/addClient",
   async (newClient, thunkAPI) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const newClientWithId = {
-          ...newClient,
-          id: mockClients.length + 1,
-          nextTripDate: newClient.nextTripDate || "2024-11-22T15:50:36.670Z", // Default date if not provided
-        };
-        mockClients.push(newClientWithId); // Add the new client to the mock data
-
-        const state = thunkAPI.getState();
-        const { clients, pageSize, currentPage } = state.clients;
-        const totalClients = clients.length + 1;
-        const totalPages = Math.ceil(totalClients / pageSize);
-
-        const newCurrentPage =
-          clients.length % pageSize === 0 ? currentPage + 1 : currentPage;
-
-        console.log("newCurrentPage", newCurrentPage);
-        resolve({
-          ...newClientWithId,
-          totalPages,
-          currentPage: newCurrentPage,
-        });
-      }, 500);
+    const state = thunkAPI.getState();
+    const token = state.auth.token;
+    const newClientTransform = transformFormData(newClient);
+    const response = await fetch(`${API_BASE_URL}/Client`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(newClientTransform),
     });
+
+    if (!response.ok) {
+      throw new Error("Failed to add client");
+    }
+
+    const data = await response.json();
+    return { id: data.data, ...newClient };
   }
 );
 
-// simulate to delete client
+const transformFormData = (newClient) => {
+  return {
+    email: newClient.email,
+    favoriteEventTypes: newClient.favoriteEventTypes.value,
+    name: newClient.firstName,
+    lastName: newClient.lastName,
+    phone: newClient.phone,
+    budget: newClient.totalBudget,
+  };
+};
+
+// Async thunk to delete a client
 export const deleteClient = createAsyncThunk(
   "clients/deleteClient",
-  async (clientId) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(clientId);
-      }, 1000); // Simulate a network delay
+  async (clientId, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const token = state.auth.token;
+
+    const response = await fetch(`${API_BASE_URL}/Client/${clientId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Include the Bearer token
+      },
     });
+
+    if (!response.ok) {
+      throw new Error("Failed to delete client");
+    }
+
+    // fetch the updated list of clients after deletion with the current page and page size depending on the totalPages
+    let currentPage = state.clients.currentPage;
+    const pageSize = state.clients.pageSize;
+    const total = state.clients.total - 1;
+    const totalPages = Math.ceil(total / pageSize);
+
+    if (currentPage > totalPages) {
+      currentPage = totalPages;
+    }
+
+    const updatedClientsResponse = await fetch(
+      `${API_BASE_URL}/Client/list?currentPage=${currentPage}&pageSize=${pageSize}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Include the Bearer token
+        },
+      }
+    );
+
+    if (!updatedClientsResponse.ok) {
+      throw new Error("Failed to fetch updated clients");
+    }
+
+    const updatedClientsData = await updatedClientsResponse.json();
+    return updatedClientsData;
   }
 );
 
-//  // Async thunk to fetch clients with pagination and search
-// export const fetchClients = createAsyncThunk(
-//   'clients/fetchClients',
-//   async ({ currentPage, pageSize, searchTerm }) => {
-//     let url = `${API_BASE_URL}/Client/list?currentPage=${currentPage}&pageSize=${pageSize}`;
-//     if (searchTerm) {
-//       url += `&searchTerm=${searchTerm}`;
-//     }
-
-//     const response = await fetch(url);
-
-//     if (!response.ok) {
-//       throw new Error('Failed to fetch clients');
-//     }
-
-//     const data = await response.json();
-//     return data;
-//   }
-// );
-
-// to add new a client
-// export const addClient = createAsyncThunk('clients/addClient', async (newClient) => {
-//   const response = await fetch(`${API_BASE_URL}/Client`, {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//     body: JSON.stringify(newClient),
-//   });
-//   const data = await response.json();
-//   return data;
-// });
-
-//   to delete a client
-// export const deleteClient = createAsyncThunk('clients/deleteClient', async (clientId) => {
-//   const response = await fetch(`${API_BASE_URL}/Client/${clientId}`, {
-//     method: 'DELETE',
-//   });
-
-//   if (!response.ok) {
-//     throw new Error('Failed to delete client');
-//   }
-
-//   return clientId;
-// });
+const INITIAL_STATE = {
+  clients: [],
+  total: 0,
+  totalPages: 0,
+  pageSize: 8,
+  currentPage: 1,
+  status: "idle",
+  error: null,
+};
 
 const clientSlice = createSlice({
   name: "clients",
-  initialState: {
-    clients: [],
-    total: 0,
-    totalPages: 0,
-    pageSize: 8,
-    currentPage: 1,
-    status: "idle",
-    error: null,
-  },
+  initialState: INITIAL_STATE,
   reducers: {
     updateClientTrip: (state, action) => {
       const { clientId, nextTripDate, location } = action.payload;
@@ -217,6 +136,14 @@ const clientSlice = createSlice({
       if (client) {
         client.nextTripDate = format(new Date(nextTripDate), "dd/MM/yyyy");
         client.location = location;
+      }
+    },
+    clearClientTrip: (state, action) => {
+      const { clientId } = action.payload;
+      const client = state.clients.find((client) => client.id === clientId);
+      if (client) {
+        client.nextTripDate = null;
+        client.location = null;
       }
     },
     setCurrentPage: (state, action) => {
@@ -234,8 +161,17 @@ const clientSlice = createSlice({
           id: client.id,
           firstName: client.name,
           lastName: client.lastName,
+          email: client.email,
           phone: client.phone,
-          nextTripDate: format(new Date(client.nextTripDate), "dd/MM/yyyy"),
+          totalBudget: client.budget,
+          favoriteEventTypes: {
+            value: client.favoriteEventType,
+            label: client.favoriteEventTypeDescription,
+          },
+          nextTripDate:
+            client.nextTripDate !== "0001-01-01T00:00:00+00:00"
+              ? format(new Date(client.nextTripDate), "dd/MM/yyyy")
+              : null,
           location: client.nextTripLocation,
         }));
         state.total = action.payload.data.totalItems;
@@ -248,44 +184,58 @@ const clientSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(addClient.fulfilled, (state, action) => {
-        console.log(" action.payload addClient", action.payload);
         state.clients.push({
           id: action.payload.id,
           firstName: action.payload.firstName,
           lastName: action.payload.lastName,
+          email: action.payload.email,
           phone: action.payload.phone,
-          nextTripDate: action.payload.nextTripDate,
-          location: action.payload.location,
+          totalBudget: action.payload.totalBudget,
+          favoriteEventTypes: action.payload.favoriteEventTypes,
+          nextTripDate: null,
+          location: null,
         });
         state.total += 1;
-        state.totalPages = action.payload.totalPages;
-        state.currentPage = action.payload.currentPage;
+
+        const totalPages = Math.ceil(state.total / state.pageSize);
+        const newCurrentPage =
+          state.total % state.pageSize === 1
+            ? state.currentPage + 1
+            : state.currentPage;
+
+        state.totalPages = totalPages;
+        state.currentPage = newCurrentPage;
+      })
+      .addCase(addClient.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
       })
       .addCase(deleteClient.fulfilled, (state, action) => {
-        const clientId = action.payload;
-        const clientIndex = state.clients.findIndex(
-          (client) => client.id === clientId
-        );
-        if (clientIndex !== -1) {
-          console.log("state.total", state.total)
-          console.log("state.pageSize", state.pageSize)
-          state.clients.splice(clientIndex, 1);
-          state.total -= 1;
-          state.totalPages = Math.ceil(state.total / state.pageSize);
-
-          // if the current page is now empty move to the previous page
-          if (state.clients.length === 0 && state.currentPage > 1) {
-            state.currentPage -= 1;
-          }
-
-          const startIndex = (state.currentPage - 1) * state.pageSize;
-          const endIndex = startIndex + state.pageSize;
-          state.clients = mockClients.slice(startIndex, endIndex);
-        }
+        state.clients = action.payload.data.list.map((client) => ({
+          id: client.id,
+          firstName: client.name,
+          lastName: client.lastName,
+          phone: client.phone,
+          email: client.email,
+          budget: client.budget,
+          favoriteEventTypes: {
+            value: client.favoriteEventType,
+            label: client.favoriteEventTypeDescription,
+          },
+          nextTripDate:
+            client.nextTripDate !== "0001-01-01T00:00:00+00:00"
+              ? format(new Date(client.nextTripDate), "dd/MM/yyyy")
+              : null,
+          location: client.nextTripLocation,
+        }));
+        state.total = action.payload.data.totalItems;
+        state.totalPages = action.payload.data.totalPages;
+        state.pageSize = action.payload.data.size;
+        state.currentPage = action.payload.data.currentPage;
       });
   },
 });
 
-export const { updateClientTrip, setCurrentPage } = clientSlice.actions;
+export const { updateClientTrip, setCurrentPage, clearClientTrip } = clientSlice.actions;
 
 export const clientReducer = clientSlice.reducer;
