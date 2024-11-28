@@ -154,7 +154,6 @@ const AddTripForm = ({ client, onClose }) => {
   };
 
   const handleAddEvent = (selectedEvent) => {
-    console.log("selectedEvent handleADD", selectedEvent)
     if (
       selectedEvent &&
       !selectedEvents.some((event) => event.id === selectedEvent.id)
@@ -164,8 +163,6 @@ const AddTripForm = ({ client, onClose }) => {
   };
 
   const handleRemoveEvent = (eventId) => {
-    console.log("selectedEvents", selectedEvents)
-    console.log("eventId", eventId)
     setSelectedEvents((prev) =>
       prev.filter((event) => event.id !== eventId)
     );

@@ -22,12 +22,10 @@ const ModalSearchBar = ({
   const [selectedEvent, setSelectedEvent] = useState('');
 
   const handleSelectEvent = (selectedOption) => {
-    console.log("selectedOption", selectedOption);
     const event = availableEvents.find((event) => event.id === selectedOption.value.id);
-    console.log("event", event);
     if (event) {
       setSelectedEvent(event);
-      handleAddEvent(event); // Call the callback function to add the event
+      handleAddEvent(event); 
     }
   };
 
