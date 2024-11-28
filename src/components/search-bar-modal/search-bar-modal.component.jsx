@@ -1,19 +1,41 @@
+import {  useSelector } from "react-redux";
 import {
   Input,
   SearchBarContainer,
   SearchButton,
-  Select,
+  // Select,
   RowContainer,
+  customSelectStyles,
 } from "./search-bar-modal.styles";
+import { useState } from "react";
+import Select from "react-select";
 
 const ModalSearchBar = ({
+  tripId,
   searchKeyword,
   handleInputChange,
-  availableEvents,
-  selectedEvent,
   handleAddEvent,
   onSearch,
 }) => {
+  const eventStatus = useSelector((state) => state.events.status);
+  const availableEvents = useSelector((state) => state.events.events[tripId]);
+  const [selectedEvent, setSelectedEvent] = useState('');
+
+  const handleSelectEvent = (selectedOption) => {
+    const event = availableEvents.find((event) => event.id === selectedOption.value.id);
+    if (event) {
+      setSelectedEvent(event);
+      handleAddEvent(event); 
+    }
+  };
+
+   const eventOptions = availableEvents?.map((event) => ({
+     value: event,
+     label: `${event.name} - ${event.startDate}`,
+   }));
+
+  console.log("eventOptions", eventOptions);
+
   return (
     <SearchBarContainer>
       <RowContainer>
@@ -27,20 +49,15 @@ const ModalSearchBar = ({
           SEARCH
         </SearchButton>
       </RowContainer>
-      {availableEvents.length > 0 && (
+      {eventStatus === 'loading' && <div>Loading events...</div>}
+      {eventStatus === 'succeeded' && (
         <Select
-          onChange={(e) => handleAddEvent(e.target.value)} // Pass the selected value
-          value={selectedEvent}
-        >
-          <option value="" disabled>
-            Select an event
-          </option>
-          {availableEvents.map((event) => (
-            <option key={event.id} value={event.id}>
-              {event.name} - {event.date}
-            </option>
-          ))}
-        </Select>
+          styles={customSelectStyles}
+          options={eventOptions}
+          onChange={handleSelectEvent}
+          value={selectedEvent ?  { value: selectedEvent, label: `${selectedEvent.name} - ${selectedEvent.startDate}` } : null}
+          placeholder="Select an event"
+        />
       )}
     </SearchBarContainer>
   );

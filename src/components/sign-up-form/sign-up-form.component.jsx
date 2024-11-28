@@ -35,12 +35,17 @@ const SignUpForm = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (password === reEnterPassword || reEnterPassword === "") {
-      setError("");
-      setIsButtonDisabled(false);
-    } else {
+    const passwordCriteria = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (password !== reEnterPassword && reEnterPassword !== "") {
       setError("Passwords don't match");
       setIsButtonDisabled(true);
+    } else if (!passwordCriteria.test(password) && password !== "") {
+      setError("Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one digit, and one special character.");
+      setIsButtonDisabled(true);
+    } else {
+      setError("");
+      setIsButtonDisabled(false);
     }
   }, [password, reEnterPassword]);
 
@@ -134,7 +139,6 @@ const SignUpForm = () => {
             />
 
             {error && <p style={{ color: "red", fontSize: "14px" }}>{error}</p>}
-
             <SignUpButton type="submit" disabled={isButtonDisabled}>
               SIGN UP
             </SignUpButton>
