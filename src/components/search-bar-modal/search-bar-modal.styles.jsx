@@ -37,7 +37,7 @@ export const SearchButton = styled.button`
   cursor: pointer;
 
   &:hover {
-    background-color: #0ac3e6;
+    background-color: #17a589;
   }
 `;
 

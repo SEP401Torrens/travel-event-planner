@@ -28,7 +28,11 @@ import { selectLocations } from "../../store/location/location.selector";
 import Select from "react-select";
 import { addClientTrip } from "../../store/client/client.trip.reducer";
 import { format } from "date-fns";
-import { fetchEvents } from "../../store/events/events.reducer";
+import {
+  addEventsToTrip,
+  fetchEvents,
+} from "../../store/events/events.reducer";
+import { notification } from "../../utils/notification.utils";
 //import { setCurrentPage } from "../../store/events/events.reducer";
 
 const defaultFormFields = {
@@ -74,15 +78,6 @@ const AddTripForm = ({ client, onClose }) => {
 
   useEffect(() => {
     if (tripId) {
-      console.log("fetch", {
-        tripId,
-        currentPage: 1,
-        pageSize: 10,
-        startDateTime: tripDetails.startDate,
-        endDateTime: tripDetails.endDate,
-        countryCode: tripDetails.location.value.code,
-      });
-
       dispatch(
         fetchEvents({
           tripId,
@@ -91,6 +86,7 @@ const AddTripForm = ({ client, onClose }) => {
           startDateTime: tripDetails.startDate,
           endDateTime: tripDetails.endDate,
           countryCode: tripDetails.location.value.code,
+          interest: tripDetails.interest.label,
         })
       );
     }
@@ -119,7 +115,7 @@ const AddTripForm = ({ client, onClose }) => {
       })
     ).then((action) => {
       if (action.type === addClientTrip.fulfilled.type) {
-        const newTripId = action.payload.id; // Get the tripId from the created trip
+        const newTripId = action.payload.id;
         setTripId(newTripId); // Set the tripId state
         dispatch(
           updateClientTrip({
@@ -140,17 +136,18 @@ const AddTripForm = ({ client, onClose }) => {
 
   const handleSearch = () => {
     if (tripId) {
-      dispatch(fetchEvents({
-        tripId, 
-        currentPage: 1,
-        pageSize: 10,
-        keyword: searchKeyword,
-        startDateTime:  tripDetails.startDate,
-        endDateTime:  tripDetails.endDate,
-        countryCode: tripDetails.location.value.code,
-      }));
+      dispatch(
+        fetchEvents({
+          tripId,
+          currentPage: 1,
+          pageSize: 10,
+          keyword: searchKeyword,
+          startDateTime: tripDetails.startDate,
+          endDateTime: tripDetails.endDate,
+          countryCode: tripDetails.location.value.code,
+        })
+      );
     }
-    // dispatch(setCurrentPage(1));
   };
 
   const handleAddEvent = (selectedEvent) => {
@@ -163,15 +160,20 @@ const AddTripForm = ({ client, onClose }) => {
   };
 
   const handleRemoveEvent = (eventId) => {
-    setSelectedEvents((prev) =>
-      prev.filter((event) => event.id !== eventId)
-    );
+    setSelectedEvents((prev) => prev.filter((event) => event.id !== eventId));
   };
 
   const handleSave = () => {
-    //todo: send to backend
-    console.log("selectedEvents", selectedEvents);
-
+    const eventIds = selectedEvents.map((event) => event.id);
+    const clientTripId = tripId;
+    dispatch(addEventsToTrip({ eventIds, clientTripId })).then((action) => {
+      if (action.type === addEventsToTrip.fulfilled.type) {
+        notification("Successfully add the events to trip.", "success");
+        onClose();
+      } else {
+        notification("Something went wrong, please try later.", "error");
+      }
+    });
     onClose();
   };
 

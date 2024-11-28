@@ -15,6 +15,7 @@ export const fetchEvents = createAsyncThunk(
       startDateTime,
       endDateTime,
       countryCode,
+      interest,
     },
     thunkAPI
   ) => {
@@ -31,7 +32,7 @@ export const fetchEvents = createAsyncThunk(
       "yyyy-MM-dd'T'HH:mm:ss'Z'"
     );
 
-    let url = `${API_BASE_URL}/Event/search/?pageSize=${pageSize}&currentPage=${currentPage}&startDateTime=${formattedStartDateTime}&endDateTime=${formattedEndDateTime}&countryCode=${countryCode}`;
+    let url = `${API_BASE_URL}/Event/search/?pageSize=${pageSize}&currentPage=${currentPage}&startDateTime=${formattedStartDateTime}&endDateTime=${formattedEndDateTime}&countryCode=${countryCode}&classificationName=${interest}`;
     if (keyword) {
       url += `&keyword=${keyword}`;
     }
@@ -57,7 +58,6 @@ export const fetchEvents = createAsyncThunk(
       startDate: event.dates.start.localDate,
     }));
 
-    console.log("tripId", tripId)
     return {
       tripId,
       events: mappedEvents,
@@ -66,6 +66,31 @@ export const fetchEvents = createAsyncThunk(
       currentPage: data.data.currentPage,
       pageSize: data.data.size,
     };
+  }
+);
+
+// Async thunk to add events to a trip
+export const addEventsToTrip = createAsyncThunk(
+  'events/addEventsToTrip',
+  async ({ clientTripId, eventIds }, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const token = state.auth.token; 
+
+    const response = await fetch(`${API_BASE_URL}/EventsTrip/bulk`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, 
+      },
+      body: JSON.stringify({ clientTripId, eventIds }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to add events to trip');
+    }
+
+    const data = await response.json();
+    return data;
   }
 );
 
@@ -103,7 +128,6 @@ const eventsSlice = createSlice({
           pageSize,
         } = action.payload;
 
-        console.log("tripId", tripId)
         state.status = "succeeded";
         state.events[tripId] = events;
         state.total[tripId] = totalItems;
@@ -112,6 +136,16 @@ const eventsSlice = createSlice({
         state.currentPage[tripId] = currentPage;
       })
       .addCase(fetchEvents.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(addEventsToTrip.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(addEventsToTrip.fulfilled, (state) => {
+        state.status = "succeeded";
+      })
+      .addCase(addEventsToTrip.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       });
