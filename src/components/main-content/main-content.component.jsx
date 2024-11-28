@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Content, ClientListWrapper } from "./main-content.styles.jsx";
-import { fetchClients, setCurrentPage } from "../../store/client/client.reducer";
+import {
+  fetchClients,
+  setCurrentPage,
+} from "../../store/client/client.reducer";
 import ClientList from "../client-list/client-list.component.jsx";
 import SearchBar from "../search-bar/search-bar.component.jsx";
 import {
@@ -45,7 +48,7 @@ const MainContent = () => {
   // );
 
   const handlePageChange = (newPage) => {
-     dispatch(setCurrentPage(newPage));
+    dispatch(setCurrentPage(newPage));
   };
 
   let content;
