@@ -18,7 +18,7 @@ export const ModalContent = styled.div`
   border-radius: 15px;
   padding: 38px 38px;
   width: 900px;
-  height: 570px;
+  /* height: 570px; */
   max-width: 90%;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
 `;
@@ -57,7 +57,18 @@ export const Divider = styled.hr`
 export const Label = styled.label`
   font-size: 16px;
   font-weight: bold;
-  color: white;
+  color: ${(props) => (props.$highlight ? "#20c997" : "white")};
   margin-bottom: 10px;
   text-transform: uppercase;
+`;
+
+export const TripDetailsContent = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  padding-bottom: 10px;
+  gap: 5px;
+  overflow-wrap: break-word;
+  white-space: normal;
+  flex-wrap: wrap;
+  flex-direction:row;
 `;
