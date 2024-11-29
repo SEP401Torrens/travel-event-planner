@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { decodeToken } from "../../utils/auth";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -37,6 +38,37 @@ export const signUp = createAsyncThunk("auth/signUp", async (userDetails) => {
   return data;
 });
 
+export const fetchUserData = createAsyncThunk(
+  "auth/fetchUserData",
+  async (_, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const token = state.auth.token;
+    if (!token) {
+      throw new Error("No token found");
+    }
+    const decodedToken = decodeToken(token);
+    console.log("decodedToken", decodedToken);
+    if (!decodedToken && !decodedToken.userId) {
+      throw new Error("No token found");
+    }
+
+    const response = await fetch(
+      `https://tep-backend-649330051049.us-central1.run.app/User/${decodedToken.nameid}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch user data");
+    }
+    const userData = await response.json();
+    console.log("userData", userData);
+    return { email: decodedToken.email, ...userData.data} ;
+  }
+);
+
 const INITIAL_STATE = {
   token: localStorage.getItem("authToken") || null,
   isAuthenticated: !!localStorage.getItem("authToken"),
@@ -65,6 +97,7 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.status = "succeeded";
         state.token = action.payload.token;
+        // state.user = action.payload.user;
       })
       .addCase(login.rejected, (state, action) => {
         state.status = "failed";
@@ -80,9 +113,21 @@ const authSlice = createSlice({
       .addCase(signUp.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+      })
+      .addCase(fetchUserData.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(fetchUserData.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.user = action.payload;
+      })
+      .addCase(fetchUserData.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
       });
   },
 });
 
-export const { signIn, logout } = authSlice.actions;
+export const { logout } = authSlice.actions;
 export const authReducer = authSlice.reducer;

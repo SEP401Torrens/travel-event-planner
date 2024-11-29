@@ -13,7 +13,7 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <BrowserRouter future={{ v7_startTransition: true }}>
+      <BrowserRouter >
         <App />
         <ToastContainer />
       </BrowserRouter>

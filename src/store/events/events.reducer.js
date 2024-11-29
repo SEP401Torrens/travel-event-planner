@@ -20,7 +20,7 @@ export const fetchEvents = createAsyncThunk(
     thunkAPI
   ) => {
     const state = thunkAPI.getState();
-    const token = state.auth.token; 
+    const token = state.auth.token;
 
     // Parse and format the dates yyyy-MM-dd
     const formattedStartDateTime = format(
@@ -41,7 +41,7 @@ export const fetchEvents = createAsyncThunk(
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, 
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -71,26 +71,81 @@ export const fetchEvents = createAsyncThunk(
 
 // Async thunk to add events to a trip
 export const addEventsToTrip = createAsyncThunk(
-  'events/addEventsToTrip',
+  "events/addEventsToTrip",
   async ({ clientTripId, eventIds }, thunkAPI) => {
     const state = thunkAPI.getState();
-    const token = state.auth.token; 
+    const token = state.auth.token;
 
     const response = await fetch(`${API_BASE_URL}/EventsTrip/bulk`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`, 
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ clientTripId, eventIds }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to add events to trip');
+      throw new Error("Failed to add events to trip");
     }
 
     const data = await response.json();
     return data;
+  }
+);
+
+export const fetchAllEventsForTrip = createAsyncThunk(
+  "events/fetchAllEventsForTrip",
+  async (clientTripId, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const token = state.auth.token;
+
+    if (!token) {
+      throw new Error("No token found");
+    }
+
+    if (!clientTripId) {
+      throw new Error("No clientTripId found");
+    }
+
+    const response = await fetch(
+      `${API_BASE_URL}/EventsTrip/getAll/${clientTripId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch events for trip");
+    }
+
+    const data = await response.json();
+
+    // Sort the data by startDate
+    const sortedData = data.data.sort((a, b) => new Date(a.eventDetails.dates.start.localDate) - new Date(b.eventDetails.dates.start.localDate));
+
+    // Map the data to only include the required fields
+    const mappedEvents = sortedData.map((event, index) => {
+      const side = index % 2 === 0 ? "right" : "left";
+      const position =
+        index === 0
+          ? "start"
+          : index === data.data.length - 1
+          ? "end"
+          : "middle";
+
+      return {
+        id: event.id,
+        name: event.eventDetails.name,
+        startDate: event.eventDetails.dates.start.localDate,
+        side,
+        position,
+      };
+    });
+
+    return { clientTripId, events: mappedEvents };
   }
 );
 
@@ -148,10 +203,22 @@ const eventsSlice = createSlice({
       .addCase(addEventsToTrip.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+      })
+      .addCase(fetchAllEventsForTrip.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchAllEventsForTrip.fulfilled, (state, action) => {
+        const { clientTripId, events } = action.payload;
+        state.status = "succeeded";
+        state.events[clientTripId] = events;
+      })
+      .addCase(fetchAllEventsForTrip.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
       });
   },
 });
 
 export const { setCurrentPage } = eventsSlice.actions;
 
-export const eventsReducer =  eventsSlice.reducer;
+export const eventsReducer = eventsSlice.reducer;

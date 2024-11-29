@@ -1,4 +1,4 @@
-import { ModalOverlay, ModalContent, ModalHeader, ModalTitle, CloseButton, ButtonContainer, ConfirmButton, CancelButton } from './confirmation-modal.styles.jsx';
+import { ModalOverlay, ModalContent, ModalHeader, ModalTitle, ButtonContainer, ConfirmButton, CancelButton } from './confirmation-modal.styles.jsx';
 import { ReactComponent as CloseIcon } from "../../assets/icons/close.svg";
 
 const ConfirmationModal = ({ message, onConfirm, onCancel }) => {

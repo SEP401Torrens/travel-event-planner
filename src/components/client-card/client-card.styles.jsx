@@ -79,6 +79,10 @@ export const DetailLabel = styled.span`
 export const DetailText = styled.span`
   font-size: 14px;
   color: ${(props) => (props.$highlight ? "#20c997" : "white")};
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden; /* Hide overflowing text */
+  text-overflow: ellipsis; /* Show ellipsis for long text */
+  max-width: calc(100% - 40px); /* Ensure text does not overlap with SVG */
 `;
 
 export const AddTripButton = styled.button`

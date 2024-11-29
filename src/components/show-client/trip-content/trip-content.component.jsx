@@ -17,6 +17,7 @@ import {
 } from "../../../store/client/client.trip.reducer";
 import { notification } from "../../../utils/notification.utils";
 import { clearClientTrip } from "../../../store/client/client.reducer";
+import TripDetails from "./trip-details/trip-details.component";
 
 const TripContent = ({ clientId }) => {
   const dispatch = useDispatch();
@@ -24,6 +25,8 @@ const TripContent = ({ clientId }) => {
     (state) => state.clientTrips
   );
   const [initialPageSet, setInitialPageSet] = useState(false);
+  const [isTripDetailsModalOpen, setTripDetailsModalOpen] = useState(false);
+  const [selectedTrip, setSelectedTrip] = useState(null);
 
   useEffect(() => {
     if (!initialPageSet) {
@@ -54,9 +57,15 @@ const TripContent = ({ clientId }) => {
     dispatch(setCurrentPage({ clientId, page: newPage }));
   };
 
-  const handleShowTrip = (tripId) => {
-    console.log("handleShowTrip", tripId);
+  const handleShowTrip = (trip) => {
+    console.log("handleShowTrip", trip);
+    setSelectedTrip(trip);
+    setTripDetailsModalOpen(true);
   };
+
+  const handleClosripDetailsModal = () => {
+    setTripDetailsModalOpen(false);
+  }
 
   const handleRemoveTrip = (tripId) => {
     dispatch(deleteClientTrip(tripId)).then((action) => {
@@ -98,7 +107,7 @@ const TripContent = ({ clientId }) => {
               <span>{trip.budget}</span>
 
               <TripButtonContainer>
-                <ShowButton onClick={() => handleShowTrip(trip.id)} />
+                <ShowButton onClick={() => handleShowTrip(trip)} />
                 <TrashButton onClick={() => handleRemoveTrip(trip.id)} />
               </TripButtonContainer>
             </TripRow>
@@ -123,6 +132,10 @@ const TripContent = ({ clientId }) => {
           </button>
         </div>
       )}
+
+       {isTripDetailsModalOpen && (
+          <TripDetails trip={selectedTrip} onClose={handleClosripDetailsModal} />
+        )}
     </TripContentContainer>
   );
 };

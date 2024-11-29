@@ -4,6 +4,8 @@ import MainPage from "./components/main/main-page.component";
 import SignUpForm from "./components/sign-up-form/sign-up-form.component";
 import { useSelector } from "react-redux";
 import { isAuthenticated } from "./store/auth/auth.selector";
+import Profile from "./components/profile/profile.component";
+import Layout from "./components/layout/layout.component";
 
 const App = () => {
   const isAuth = useSelector(isAuthenticated);
@@ -16,12 +18,21 @@ const App = () => {
       />
       <Route
         path="/main"
-        element={isAuth ? <MainPage /> : <Navigate to="/" />}
+        element={isAuth ?  <MainPage /> : <Navigate to="/" />}
       />
       <Route
         path="/sign-up"
         element={isAuth ? <Navigate to="/main" /> : <SignUpForm />}
       />
+      <Route
+        path="/profile"
+        element={isAuth ? (
+          <Layout>
+            <Profile />
+          </Layout>
+        ) : (
+          <Navigate to="/" />
+        )}/>
     </Routes>
   );
 };

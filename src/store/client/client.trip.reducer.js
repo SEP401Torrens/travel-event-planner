@@ -72,6 +72,7 @@ export const addClientTrip = createAsyncThunk(
     }
     const data = await response.json();
 
+    console.log("newTrip", newTrip);
     return { id: data.data, ...newTrip };
   }
 );
@@ -108,6 +109,7 @@ const clientTripSlice = createSlice({
           location: trip.locationDescription,
           travelStartDate: format(new Date(trip.startDate), "dd/MM/yyyy"),
           travelEndDate: format(new Date(trip.endDate), "dd/MM/yyyy"),
+          interest: trip.interestDescription,
           budget: trip.budget,
         }));
         state.total[clientId] = data.data.totalItems;

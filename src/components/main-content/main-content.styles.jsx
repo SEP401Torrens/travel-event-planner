@@ -4,9 +4,9 @@ export const Content = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Keeps pagination at the bottom */
+  justify-content: space-between; 
   padding: 30px 40px;
-  min-height: 100vh; /* Ensures the full height is utilized */
+  min-height: 100vh; 
 `;
 
 export const ClientListWrapper = styled.div`
@@ -15,4 +15,11 @@ export const ClientListWrapper = styled.div`
   flex-direction: column;
   justify-content: flex-start; 
   gap: 20px;
+`;
+
+export const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80%;
 `;
