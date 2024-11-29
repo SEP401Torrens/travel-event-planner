@@ -60,6 +60,11 @@ export const DetailRow = styled.div`
     height: 24px;
     margin-right: 10px;
     color: white;
+    cursor: pointer;
+
+    &:hover {
+      color: #20c997;
+    }
   }
 `;
 

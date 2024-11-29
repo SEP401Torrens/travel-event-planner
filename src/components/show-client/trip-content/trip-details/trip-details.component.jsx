@@ -11,7 +11,6 @@ import { ReactComponent as CloseButton } from "../../../../assets/icons/close.sv
 import Timeline from "../../../timeline/timeline.component";
 
 const TripDetails = ({ trip, onClose }) => {
-  console.log("trip", trip);
   return (
     <ModalOverlay>
       <ModalContent>
@@ -34,7 +33,7 @@ const TripDetails = ({ trip, onClose }) => {
           <ModalTitle>Events</ModalTitle>
         </ModalHeader>
         <Divider />
-        <Timeline />
+        <Timeline tripId={trip.id}/>
       </ModalContent>
     </ModalOverlay>
   );

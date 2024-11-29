@@ -6,13 +6,15 @@ import {
 } from "../../store/auth/auth.selector";
 import {
   DetailsContainer,
+  LoadingContainer,
   ProfileContainer,
   ProfilePicture,
   UserEmail,
   UserName,
 } from "./profile.styles";
 import { fetchUserData } from "../../store/auth/auth.reducer";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
+import { OrbitProgress } from "react-loading-indicators";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -25,13 +27,16 @@ const Profile = () => {
   }, [dispatch]);
 
   if (status === "loading") {
-    return <div>Loading...</div>;
+    return (
+      <LoadingContainer>
+        <OrbitProgress color="#1e0e62" size="small" />
+      </LoadingContainer>
+    );
   }
 
   if (status === "failed") {
     return <div>Error: {error}</div>;
   }
-
   if (!user) {
     return <div>No user data available</div>;
   }
@@ -48,13 +53,6 @@ const Profile = () => {
       <DetailsContainer>
         <UserName>{`${user.name} ${user.lastName}`}</UserName>
         <UserEmail>{user.email}</UserEmail>
-        {/*
-        <ProfileDetails>
-          <DetailRow>
-            <DetailLabel>ID:</DetailLabel>
-            <DetailValue>{user.id}</DetailValue>
-          </DetailRow>
-        </ProfileDetails> */}
       </DetailsContainer>
     </ProfileContainer>
   );

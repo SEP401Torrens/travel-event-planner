@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Content, ClientListWrapper } from "./main-content.styles.jsx";
+import { Content, ClientListWrapper, LoadingContainer } from "./main-content.styles.jsx";
 import {
   fetchClients,
   setCurrentPage,
@@ -15,6 +15,7 @@ import {
   selectCurrentPage,
 } from "../../store/client/client.selector.js";
 import Pagination from "../pagination/pagination.component.jsx";
+import { OrbitProgress } from "react-loading-indicators";
 
 const MainContent = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -41,12 +42,6 @@ const MainContent = () => {
     dispatch(setCurrentPage(1));
   };
 
-  // const filteredClients = clients.filter((client) =>
-  //   `${client.firstName} ${client.lastName}`
-  //     .toLowerCase()
-  //     .includes(searchQuery.toLowerCase())
-  // );
-
   const handlePageChange = (newPage) => {
     dispatch(setCurrentPage(newPage));
   };
@@ -54,7 +49,12 @@ const MainContent = () => {
   let content;
 
   if (clientStatus === "loading") {
-    content = <div>Loading...</div>;
+    content = (
+      <LoadingContainer>
+        <OrbitProgress color="#1e0e62" size="small"
+        />
+      </LoadingContainer>
+    );
   } else if (clientStatus === "succeeded") {
     content = <ClientList clients={clients} />;
   } else if (clientStatus === "failed") {
