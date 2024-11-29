@@ -25,7 +25,13 @@ const SideBar = () => {
   };
 
   const handleGoToClients = () => {
+     console.log("Go to main");
     navigate("/main");
+  };
+
+  const handleGoToProfile = () => {
+    console.log("Go to profile");
+    navigate("/profile");
   };
 
   return (
@@ -38,7 +44,7 @@ const SideBar = () => {
             <ClientsIcon />
             Clients
           </SidebarMenuItem>
-          <SidebarMenuItem>
+          <SidebarMenuItem onClick={handleGoToProfile}>
             <ProfileIcon />
             Profile
           </SidebarMenuItem>
