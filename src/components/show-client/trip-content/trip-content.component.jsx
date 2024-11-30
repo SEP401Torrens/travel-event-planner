@@ -18,15 +18,18 @@ import {
 import { notification } from "../../../utils/notification.utils";
 import { clearClientTrip } from "../../../store/client/client.reducer";
 import TripDetails from "./trip-details/trip-details.component";
+import { ReactComponent as AddButton } from "../../../assets/icons/add.svg";
+import AddTripForm from "../../add-trip-form/add-trip-form.component";
 
-const TripContent = ({ clientId }) => {
+const TripContent = ({ client, clientId }) => {
   const dispatch = useDispatch();
   const { trips, currentPage, totalPages, status } = useSelector(
     (state) => state.clientTrips
   );
   const [initialPageSet, setInitialPageSet] = useState(false);
-  const [isTripDetailsModalOpen, setTripDetailsModalOpen] = useState(false);
+  const [isTripDetailsModalOpen, setIsTripDetailsModalOpen] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState(null);
+  const [isAddTripModalOpen, setIsAddTripModalOpen] = useState(false);
 
   useEffect(() => {
     if (!initialPageSet) {
@@ -60,12 +63,12 @@ const TripContent = ({ clientId }) => {
   const handleShowTrip = (trip) => {
     console.log("handleShowTrip", trip);
     setSelectedTrip(trip);
-    setTripDetailsModalOpen(true);
+    setIsTripDetailsModalOpen(true);
   };
 
-  const handleClosripDetailsModal = () => {
-    setTripDetailsModalOpen(false);
-  }
+  const handleCloseTripDetailsModal = () => {
+    setIsTripDetailsModalOpen(false);
+  };
 
   const handleRemoveTrip = (tripId) => {
     dispatch(deleteClientTrip(tripId)).then((action) => {
@@ -84,6 +87,14 @@ const TripContent = ({ clientId }) => {
     });
   };
 
+  const handleAddTrip = () => {
+    setIsAddTripModalOpen(true);
+  };
+
+  const handleAddTripCloseModal = () => {
+    setIsAddTripModalOpen(false);
+  };
+
   return (
     <TripContentContainer>
       <TripList>
@@ -92,9 +103,10 @@ const TripContent = ({ clientId }) => {
           <span>TRAVEL START</span>
           <span>TRAVEL END</span>
           <span>BUDGET</span>
-          <span></span>
+          <span>
+            <AddButton onClick={handleAddTrip} />
+          </span>
         </TripHeader>
-
         {status === "loading" && <div>Loading...</div>}
         {status === "succeeded" &&
         trips[clientId] &&
@@ -133,9 +145,15 @@ const TripContent = ({ clientId }) => {
         </div>
       )}
 
-       {isTripDetailsModalOpen && (
-          <TripDetails trip={selectedTrip} onClose={handleClosripDetailsModal} />
-        )}
+      {isTripDetailsModalOpen && (
+        <TripDetails
+          trip={selectedTrip}
+          onClose={handleCloseTripDetailsModal}
+        />
+      )}
+      {isAddTripModalOpen && (
+        <AddTripForm client={client} onClose={handleAddTripCloseModal} />
+      )}
     </TripContentContainer>
   );
 };

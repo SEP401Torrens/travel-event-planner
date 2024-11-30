@@ -26,7 +26,7 @@ import { updateClientTrip } from "../../store/client/client.reducer";
 import { selectCategories } from "../../store/categories/categories.selector";
 import { selectLocations } from "../../store/location/location.selector";
 import Select from "react-select";
-import { addClientTrip } from "../../store/client/client.trip.reducer";
+import { addClientTrip, updateTrip } from "../../store/client/client.trip.reducer";
 import { format } from "date-fns";
 import {
   addEventsToTrip,
@@ -124,6 +124,17 @@ const AddTripForm = ({ client, onClose }) => {
             location: tripDetails.location.value.country,
             interest: tripDetails.interest,
             budget: tripDetails.budget,
+          })
+        );
+
+        dispatch(
+          updateTrip({
+            clientId: client.id,
+            tripId: newTripId,
+            location: tripDetails.location.value.country,
+            travelStartDate: tripDetails.startDate,
+            travelEndDate: tripDetails.endDate,
+            budget: tripDetails.budget
           })
         );
 

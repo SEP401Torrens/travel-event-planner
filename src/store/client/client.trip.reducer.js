@@ -78,14 +78,14 @@ export const addClientTrip = createAsyncThunk(
 );
 
 const INITIAL_STATE = {
-    trips: {},
-    total: {},
-    totalPages: {},
-    pageSize: 8, // Default page size
-    currentPage: {},
-    status: 'idle',
-    error: null,
-  };
+  trips: {},
+  total: {},
+  totalPages: {},
+  pageSize: 8, // Default page size
+  currentPage: {},
+  status: "idle",
+  error: null,
+};
 
 const clientTripSlice = createSlice({
   name: "clientTrips",
@@ -95,6 +95,31 @@ const clientTripSlice = createSlice({
       const { clientId, page } = action.payload;
       state.currentPage[clientId] = page;
     },
+    updateTrip: (state, action) => {
+      const {
+        clientId,
+        tripId,
+        location,
+        travelStartDate,
+        travelEndDate,
+        interest,
+        budget,
+      } = action.payload;
+      const clientTrips = state.trips[clientId];
+      if (clientTrips) {
+        const tripIndex = clientTrips.findIndex((t) => t.id === tripId);
+        if (tripIndex !== -1) {
+          clientTrips[tripIndex] = {
+            ...clientTrips[tripIndex],
+            location,
+            travelStartDate: format(new Date(travelStartDate), "dd/MM/yyyy"),
+            travelEndDate: format(new Date(travelEndDate), "dd/MM/yyyy"),
+            interest,
+            budget,
+          };
+        }
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -102,8 +127,8 @@ const clientTripSlice = createSlice({
         state.status = "loading";
       })
       .addCase(fetchClientTrips.fulfilled, (state, action) => {
-       const { clientId, data } = action.payload;
-        state.status = 'succeeded';
+        const { clientId, data } = action.payload;
+        state.status = "succeeded";
         state.trips[clientId] = data.data.list.map((trip) => ({
           id: trip.id,
           location: trip.locationDescription,
@@ -122,21 +147,29 @@ const clientTripSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(deleteClientTrip.fulfilled, (state, action) => {
-         const clientTripId = action.payload;
-        const clientId = Object.keys(state.trips).find(clientId =>
-          state.trips[clientId].some(trip => trip.id === clientTripId)
+        const clientTripId = action.payload;
+        const clientId = Object.keys(state.trips).find((clientId) =>
+          state.trips[clientId].some((trip) => trip.id === clientTripId)
         );
-        state.trips[clientId] = state.trips[clientId].filter(trip => trip.id !== clientTripId);
+        state.trips[clientId] = state.trips[clientId].filter(
+          (trip) => trip.id !== clientTripId
+        );
         state.total[clientId] -= 1;
-        state.totalPages[clientId] = Math.ceil(state.total[clientId] / state.pageSize);
+        state.totalPages[clientId] = Math.ceil(
+          state.total[clientId] / state.pageSize
+        );
 
         // If the current page is now empty, move to the previous page
-        if (state.trips[clientId].length === 0 && state.currentPage[clientId] > 1) {
+        if (
+          state.trips[clientId].length === 0 &&
+          state.currentPage[clientId] > 1
+        ) {
           state.currentPage[clientId] -= 1;
         }
       })
       .addCase(addClientTrip.fulfilled, (state, action) => {
-        const { clientId, id, location, startDate, endDate, budget } = action.payload;
+        const { clientId, id, location, startDate, endDate, budget } =
+          action.payload;
         if (!state.trips[clientId]) {
           state.trips[clientId] = [];
           state.total[clientId] = 0;
@@ -170,5 +203,5 @@ const clientTripSlice = createSlice({
   },
 });
 
-export const { setCurrentPage } = clientTripSlice.actions;
+export const { setCurrentPage, updateTrip } = clientTripSlice.actions;
 export const clientTripsReducer = clientTripSlice.reducer;
