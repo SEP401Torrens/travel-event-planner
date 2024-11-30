@@ -14,21 +14,19 @@ const Timeline = ({tripId}) => {
   const events = useSelector((state) => selectEvents(state, tripId));
   const status = useSelector(selectEventsStatus);
   const error = useSelector(selectEventsError);
-
+ 
    useEffect(() => {
      if (!events.length) {
        dispatch(fetchAllEventsForTrip(tripId));
      }
-   }, [dispatch, tripId, events.length]);
+   }, [dispatch, tripId, events.length, events]);
 
-  const truncateText = (text, maxLength = 37) => {
+  const truncateText = (text, maxLength = 33) => {
   if (text.length <= maxLength) {
     return text;
   }
   return text.slice(0, maxLength) + '...';
 };
-console.log("status", status);
-console.log("events", events);
  
   return (
     <TimelineWrapper>

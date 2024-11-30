@@ -30,6 +30,7 @@ import { addClientTrip, updateTrip } from "../../store/client/client.trip.reduce
 import { format } from "date-fns";
 import {
   addEventsToTrip,
+  fetchAllEventsForTrip,
   fetchEvents,
 } from "../../store/events/events.reducer";
 import { notification } from "../../utils/notification.utils";
@@ -179,6 +180,7 @@ const AddTripForm = ({ client, onClose }) => {
     const clientTripId = tripId;
     dispatch(addEventsToTrip({ eventIds, clientTripId })).then((action) => {
       if (action.type === addEventsToTrip.fulfilled.type) {
+        dispatch(fetchAllEventsForTrip(clientTripId));
         notification("Successfully add the events to trip.", "success");
         onClose();
       } else {
