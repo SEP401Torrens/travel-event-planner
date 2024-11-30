@@ -28,6 +28,17 @@ export const TripHeader = styled.div`
     color: #ffffff;
     text-align: left; 
   }
+
+  svg {
+    width: 24px;
+    height: 24px;
+    color: white;
+    cursor: pointer;
+
+    &:hover {
+      color: #20c997;
+    }
+  }
 `;
 
 export const TripRow = styled.div`

@@ -48,7 +48,9 @@ const ShowClient = ({ client, onClose }) => {
             </ModalHeader>
             <Divider />
             {activeTab === "info" && <ClientInfoContent client={client} />}
-            {activeTab === "trips" && <TripContent clientId={client.id} />}
+            {activeTab === "trips" && (
+              <TripContent client={client} clientId={client.id} />
+            )}
           </div>
         </SidebarContainer>
       </ModalContent>
