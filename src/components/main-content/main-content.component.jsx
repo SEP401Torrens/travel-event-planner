@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Content, ClientListWrapper, LoadingContainer } from "./main-content.styles.jsx";
+import {
+  Content,
+  ClientListWrapper,
+  LoadingContainer,
+} from "./main-content.styles.jsx";
 import {
   fetchClients,
   setCurrentPage,
@@ -16,6 +20,8 @@ import {
 } from "../../store/client/client.selector.js";
 import Pagination from "../pagination/pagination.component.jsx";
 import { OrbitProgress } from "react-loading-indicators";
+import { notification } from "../../utils/notification.utils.js";
+import { calculatePageSize } from "../../utils/calculatePageSize.js";
 
 const MainContent = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -26,16 +32,22 @@ const MainContent = () => {
   const totalPages = useSelector(selectTotalPages);
   const currentPage = useSelector(selectCurrentPage);
 
+  const pageSize = calculatePageSize();
+  console.log("pageSize", pageSize);
+
   useEffect(() => {
     dispatch(
       fetchClients({
         currentPage,
-        pageSize: 8,
+        pageSize,
         searchTerm: searchQuery || null,
       })
-    );
-  }, [currentPage, searchQuery, dispatch]);
-
+    ).then((action) => {
+      if (action.type === fetchClients.rejected.type) {
+        notification("Something went wrong, please try later.", "error");
+      }
+    });
+  }, [currentPage, pageSize, searchQuery, dispatch]);
 
   const handleSearchChange = (query) => {
     setSearchQuery(query);
@@ -51,14 +63,15 @@ const MainContent = () => {
   if (clientStatus === "loading") {
     content = (
       <LoadingContainer>
-        <OrbitProgress color="#1e0e62" size="small"
-        />
+        <OrbitProgress color="#1e0e62" size="small" />
       </LoadingContainer>
     );
   } else if (clientStatus === "succeeded") {
     content = <ClientList clients={clients} />;
-  } else if (clientStatus === "failed") {
+  } else if (clientStatus === "failed" && clients.length === 0) {
     content = <div>{error}</div>;
+  } else {
+    content = <ClientList clients={clients} />;
   }
 
   return (

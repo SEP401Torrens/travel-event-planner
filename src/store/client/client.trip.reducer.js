@@ -62,7 +62,7 @@ export const addClientTrip = createAsyncThunk(
     if (!token) {
       return thunkAPI.rejectWithValue("No token found");
     }
-    
+    console.log("newTrip", newTrip);
     try {
       const response = await fetch(`${API_BASE_URL}/ClientTrip`, {
         method: "POST",
@@ -81,9 +81,9 @@ export const addClientTrip = createAsyncThunk(
       }
       const data = await response.json();
 
-      console.log("newTrip", newTrip);
       return { id: data.data, ...newTrip };
     } catch (error) {
+      console.log("error", error);
       return thunkAPI.rejectWithValue(
         error.message || "Failed to add client trip"
       );

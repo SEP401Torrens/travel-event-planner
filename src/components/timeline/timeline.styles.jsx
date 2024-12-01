@@ -22,21 +22,21 @@ export const TimelineItem = styled.div`
   &::before {
     content: "";
     position: absolute;
-    left: 50%; 
+    left: 50%;
     transform: translateX(-50%);
     width: 2px;
-    background-color: #20c997; 
+    background-color: #20c997;
     top: ${({ position }) => (position === "start" ? "50%" : "0")};
     bottom: ${({ position }) => (position === "end" ? "50%" : "0")};
   }
 
-  // Dot (circle) 
+  // Dot (circle)
   &::after {
     content: "";
     position: absolute;
-    left: 50%; 
+    left: 50%;
     transform: translate(-50%, -50%);
-    top: 50%; 
+    top: 50%;
     width: 10px;
     height: 10px;
     background-color: #20c997;
@@ -44,36 +44,51 @@ export const TimelineItem = styled.div`
     z-index: 1;
   }
 
-  // Left container for text 
+  // Left container for text
   .left-container {
     display: flex;
-    justify-content: flex-end; 
+    justify-content: flex-end;
     align-items: center;
     flex: 1;
-    padding-right: 10px; 
+    padding-right: 10px;
     text-align: right;
   }
 
   // Right container for text
   .right-container {
     display: flex;
-    justify-content: flex-start; 
+    justify-content: flex-start;
     align-items: center;
-    flex: 1; 
-    padding-left: 10px; 
+    flex: 1;
+    padding-left: 10px;
     text-align: left;
   }
 
   span {
+    display: flex;
+    align-items: center;
     background-color: white;
-    padding: 5px 10px;
+    padding: 10px 10px;
     border-radius: 5px;
     font-size: 14px;
     color: #1e0e62;
-    word-break: break-word; 
-    white-space: nowrap; 
-    overflow: hidden; 
+    word-break: break-word;
+    white-space: nowrap;
+    overflow: hidden;
     text-overflow: ellipsis;
+    gap: 5px;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    cursor: pointer;
+    color: #1e0e62;
+
+    &:hover {
+      color: #20c997;
+    }
   }
 `;
 

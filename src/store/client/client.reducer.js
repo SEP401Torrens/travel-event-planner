@@ -37,7 +37,13 @@ export const addClient = createAsyncThunk(
   async (newClient, thunkAPI) => {
     const state = thunkAPI.getState();
     const token = state.auth.token;
+
+    if (!token) {
+      return thunkAPI.rejectWithValue("No token found");
+    }
+
     const newClientTransform = transformFormData(newClient);
+
     const response = await fetch(`${API_BASE_URL}/Client`, {
       method: "POST",
       headers: {
@@ -48,7 +54,11 @@ export const addClient = createAsyncThunk(
     });
 
     if (!response.ok) {
-      throw new Error("Failed to add client");
+      const errorData = await response.json();
+      console.log("errorData", errorData);
+      return thunkAPI.rejectWithValue(
+        errorData.message.split("\n")[0] || "Failed to add client"
+      );
     }
 
     const data = await response.json();
@@ -208,7 +218,7 @@ const clientSlice = createSlice({
       })
       .addCase(addClient.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = action.payload;
       })
       .addCase(deleteClient.fulfilled, (state, action) => {
         state.clients = action.payload.data.list.map((client) => ({
@@ -236,6 +246,7 @@ const clientSlice = createSlice({
   },
 });
 
-export const { updateClientTrip, setCurrentPage, clearClientTrip } = clientSlice.actions;
+export const { updateClientTrip, setCurrentPage, clearClientTrip } =
+  clientSlice.actions;
 
 export const clientReducer = clientSlice.reducer;

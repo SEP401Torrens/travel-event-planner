@@ -26,7 +26,10 @@ import { updateClientTrip } from "../../store/client/client.reducer";
 import { selectCategories } from "../../store/categories/categories.selector";
 import { selectLocations } from "../../store/location/location.selector";
 import Select from "react-select";
-import { addClientTrip, updateTrip } from "../../store/client/client.trip.reducer";
+import {
+  addClientTrip,
+  updateTrip,
+} from "../../store/client/client.trip.reducer";
 import { format } from "date-fns";
 import {
   addEventsToTrip,
@@ -136,12 +139,13 @@ const AddTripForm = ({ client, onClose }) => {
             travelStartDate: tripDetails.startDate,
             travelEndDate: tripDetails.endDate,
             interest: tripDetails.interest,
-            budget: tripDetails.budget
+            budget: tripDetails.budget,
           })
         );
 
         setCurrentModal("event");
-      } else {
+      } else if (action.type === addClientTrip.rejected.type) {
+        console.log("Error", action.error.message);
         notification(action.error.message, "error");
       }
     });
