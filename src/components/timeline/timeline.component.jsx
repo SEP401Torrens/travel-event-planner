@@ -6,28 +6,32 @@ import {
 } from "./timeline.styles";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllEventsForTrip } from "../../store/events/events.reducer";
-import { selectEvents, selectEventsError, selectEventsStatus } from "../../store/events/events.selector";
+import {
+  selectEvents,
+  selectEventsError,
+  selectEventsStatus,
+} from "../../store/events/events.selector";
 import { OrbitProgress } from "react-loading-indicators";
 
-const Timeline = ({tripId}) => {
+const Timeline = ({ tripId }) => {
   const dispatch = useDispatch();
   const events = useSelector((state) => selectEvents(state, tripId));
   const status = useSelector(selectEventsStatus);
   const error = useSelector(selectEventsError);
- 
-   useEffect(() => {
-     if (!events.length) {
-       dispatch(fetchAllEventsForTrip(tripId));
-     }
-   }, [dispatch, tripId, events.length, events]);
+
+  useEffect(() => {
+    if (!events.length) {
+      dispatch(fetchAllEventsForTrip(tripId));
+    }
+  }, [dispatch, tripId, events.length]);
 
   const truncateText = (text, maxLength = 33) => {
-  if (text.length <= maxLength) {
-    return text;
-  }
-  return text.slice(0, maxLength) + '...';
-};
- 
+    if (text.length <= maxLength) {
+      return text;
+    }
+    return text.slice(0, maxLength) + "...";
+  };
+
   return (
     <TimelineWrapper>
       <TimelineContainer>

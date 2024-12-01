@@ -132,16 +132,17 @@ const AddTripForm = ({ client, onClose }) => {
           updateTrip({
             clientId: client.id,
             tripId: newTripId,
-            location: tripDetails.location.value.country,
+            location: tripDetails.location,
             travelStartDate: tripDetails.startDate,
             travelEndDate: tripDetails.endDate,
+            interest: tripDetails.interest,
             budget: tripDetails.budget
           })
         );
 
         setCurrentModal("event");
       } else {
-        console.error("Failed to add client trip:", action.error.message);
+        notification(action.error.message, "error");
       }
     });
   };
