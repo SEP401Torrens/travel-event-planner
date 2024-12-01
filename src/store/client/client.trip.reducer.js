@@ -111,10 +111,10 @@ const clientTripSlice = createSlice({
         if (tripIndex !== -1) {
           clientTrips[tripIndex] = {
             ...clientTrips[tripIndex],
-            location,
+            location: location.value.country,
             travelStartDate: format(new Date(travelStartDate), "dd/MM/yyyy"),
             travelEndDate: format(new Date(travelEndDate), "dd/MM/yyyy"),
-            interest,
+            interest: interest.label,
             budget,
           };
         }
