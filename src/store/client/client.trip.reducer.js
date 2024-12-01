@@ -58,22 +58,36 @@ export const addClientTrip = createAsyncThunk(
   async (newTrip, thunkAPI) => {
     const state = thunkAPI.getState();
     const token = state.auth.token;
-    const response = await fetch(`${API_BASE_URL}/ClientTrip`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(newTrip),
-    });
 
-    if (!response.ok) {
-      throw new Error("Failed to add client trip");
+    if (!token) {
+      return thunkAPI.rejectWithValue("No token found");
     }
-    const data = await response.json();
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/ClientTrip`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newTrip),
+      });
 
-    console.log("newTrip", newTrip);
-    return { id: data.data, ...newTrip };
+      if (!response.ok) {
+        const errorData = await response.json();
+        return thunkAPI.rejectWithValue(
+          errorData.message || "Failed to add client trip"
+        );
+      }
+      const data = await response.json();
+
+      console.log("newTrip", newTrip);
+      return { id: data.data, ...newTrip };
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.message || "Failed to add client trip"
+      );
+    }
   }
 );
 

@@ -142,7 +142,7 @@ const AddTripForm = ({ client, onClose }) => {
 
         setCurrentModal("event");
       } else {
-        console.error("Failed to add client trip:", action.error.message);
+        notification(action.error.message, "error");
       }
     });
   };

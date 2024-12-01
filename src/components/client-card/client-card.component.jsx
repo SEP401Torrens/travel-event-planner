@@ -27,7 +27,6 @@ const ClientCard = ({ client }) => {
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [isShowClientDetailsOpen, setIsShowClientDetailsOpen] = useState(false);
   
-  
   const dispatch = useDispatch();
 
   const handleAddTripClick = () => {
