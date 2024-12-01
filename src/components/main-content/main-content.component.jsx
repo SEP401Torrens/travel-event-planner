@@ -59,7 +59,6 @@ const MainContent = () => {
   };
 
   let content;
-  console.log("clientStatus", clientStatus);
 
   if (clientStatus === "loading") {
     content = (
