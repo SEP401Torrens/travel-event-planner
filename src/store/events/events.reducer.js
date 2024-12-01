@@ -94,6 +94,42 @@ export const addEventsToTrip = createAsyncThunk(
   }
 );
 
+
+// Async thunk to delete an event
+export const deleteEvent = createAsyncThunk(
+  'events/deleteEvent',
+  async ({ clientTripId, eventTripId }, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const token = state.auth.token;
+
+    if (!token) {
+      return thunkAPI.rejectWithValue('No token found');
+    }
+
+    const events = state.events.events[clientTripId];
+    if (events.length <= 2) {
+      return thunkAPI.rejectWithValue('Cannot delete event. A trip must have at least two events.');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/EventsTrip/${eventTripId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return thunkAPI.rejectWithValue(
+        errorData.message || 'Failed to delete event'
+      );
+    }
+
+    return { clientTripId, eventTripId };
+  }
+);
+
 export const fetchAllEventsForTrip = createAsyncThunk(
   "events/fetchAllEventsForTrip",
   async (clientTripId, thunkAPI) => {
@@ -215,6 +251,40 @@ const eventsSlice = createSlice({
       .addCase(fetchAllEventsForTrip.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+      })
+      .addCase(deleteEvent.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(deleteEvent.fulfilled, (state, action) => {
+        const { clientTripId, eventTripId } = action.payload;
+        state.events[clientTripId] = state.events[clientTripId].filter(
+          (event) => event.id !== eventTripId
+        );
+
+        // recalculate positions
+        state.events[clientTripId] = state.events[clientTripId].map(
+          (event, index) => {
+            const side = index % 2 === 0 ? "right" : "left";
+            const position =
+              index === 0
+                ? "start"
+                : index === state.events[clientTripId].length - 1
+                ? "end"
+                : "middle";
+
+            return {
+              ...event,
+              side,
+              position,
+            };
+          }
+        );
+
+        state.status = "succeeded";
+      })
+      .addCase(deleteEvent.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
       });
   },
 });
