@@ -68,9 +68,9 @@ const AddClientModal = ({ onClose }) => {
         notification("Successfully created", "success");
         onClose();
       } else {
-        notification("Something went wrong, please try again.", "error");
+        notification(action.payload, "error");
       }
-    })
+    });
   };
 
   const categoryOptions = categories.map((category) => ({
